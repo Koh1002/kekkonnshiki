@@ -6,6 +6,8 @@ import { supabase } from "@/lib/supabase";
 import type { Answer, GameState, Participant, PublicQuestion } from "@/types/game";
 import { RANK_LATIN, RANK_NAMES, RANK_TAGLINES, RANK_THEMES, rankIconPath } from "@/lib/ranks";
 import { ParchmentFrame } from "@/components/ParchmentFrame";
+import { Timer } from "@/components/Timer";
+import { ScreenshotButton } from "@/components/ScreenshotButton";
 
 export default function PlayPage() {
   const router = useRouter();
@@ -194,9 +196,11 @@ export default function PlayPage() {
           myAnswer={myAnswer}
           revealed={state.revealed_correct_option ?? null}
           commentary={state.revealed_commentary ?? null}
+          questionStartedAt={state.question_started_at}
           onPick={submitAnswer}
           submitting={submitting}
           me={me}
+          pname={pname}
           prevRank={prevRankRef.current ?? me.rank_level}
           themeGlow={theme.glow}
           themeSurface={theme.surface}
@@ -215,9 +219,11 @@ function PhaseView(props: {
   myAnswer: Answer | null;
   revealed: "A" | "B" | null;
   commentary: string | null;
+  questionStartedAt: string | null;
   onPick: (opt: "A" | "B") => void;
   submitting: boolean;
   me: Participant;
+  pname: string;
   prevRank: number;
   themeGlow: string;
   themeSurface: string;
@@ -231,9 +237,11 @@ function PhaseView(props: {
     myAnswer,
     revealed,
     commentary,
+    questionStartedAt,
     onPick,
     submitting,
     me,
+    pname,
     prevRank,
     themeGlow,
     themeSurface,
@@ -283,6 +291,15 @@ function PhaseView(props: {
             </h2>
             {question.description && (
               <p className={`mt-2 text-sm ${themeAccent}`}>{question.description}</p>
+            )}
+            {!locked && (
+              <div className="mt-4 flex justify-center">
+                <Timer
+                  startedAt={questionStartedAt}
+                  totalSeconds={question.timer_seconds}
+                  size="md"
+                />
+              </div>
             )}
           </div>
 
@@ -418,31 +435,66 @@ function PhaseView(props: {
   }
 
   // FINAL
+  return <FinalCard me={me} pname={pname} themeFrame={themeFrame} themeSurface={themeSurface} themeSoft={themeSoft} themeAccent={themeAccent} />;
+}
+
+function FinalCard({
+  me,
+  pname,
+  themeFrame,
+  themeSurface,
+  themeSoft,
+  themeAccent,
+}: {
+  me: Participant;
+  pname: string;
+  themeFrame: string;
+  themeSurface: string;
+  themeSoft: string;
+  themeAccent: string;
+}) {
   const isKing = me.rank_level === 5;
+  const captureRef = useRef<HTMLDivElement>(null);
   return (
-    <ParchmentFrame>
-      <div className="text-center space-y-5">
-        <div className="font-display text-amber-300 tracking-widest text-xs">FINALE</div>
-        <h2 className="font-display text-amber-200 text-2xl">最終格付け</h2>
-        <div className={`mx-auto inline-block p-4 rounded-full border-2 ${themeFrame} ${themeSurface} ${isKing ? "animate-seal" : ""}`}>
-          <img
-            src={rankIconPath(me.rank_level)}
-            alt=""
-            className="w-36 h-36 rounded-full"
-          />
-        </div>
-        <div className={`text-3xl font-display ${themeSoft}`}>
-          {RANK_NAMES[me.rank_level]}
-        </div>
-        <div className={`text-sm ${themeAccent}`}>
-          正解数：{me.correct_count} ／ {RANK_TAGLINES[me.rank_level]}
-        </div>
-        {isKing && (
-          <p className="text-amber-200 animate-shimmer font-bold">
-            天下に冠たる王族の座、誠におめでとうございます！
-          </p>
-        )}
+    <>
+      <div ref={captureRef}>
+        <ParchmentFrame>
+          <div className="text-center space-y-5">
+            <div className="font-display text-amber-300 tracking-widest text-xs">FINALE</div>
+            <h2 className="font-display text-amber-200 text-2xl">最終格付け</h2>
+            <div className="text-amber-300 text-xl">❖ ─ ✦ ─ ❖</div>
+            <div className="font-display text-amber-100 text-xl">{pname || "名乗りし客人"} 様</div>
+            <div className={`mx-auto inline-block p-4 rounded-full border-2 ${themeFrame} ${themeSurface} ${isKing ? "animate-seal" : ""}`}>
+              <img
+                src={rankIconPath(me.rank_level)}
+                alt=""
+                className="w-36 h-36 rounded-full"
+              />
+            </div>
+            <div className={`text-3xl font-display ${themeSoft}`}>
+              {RANK_NAMES[me.rank_level]}
+            </div>
+            <div className={`text-sm ${themeAccent}`}>
+              正解数：{me.correct_count} ／ {RANK_TAGLINES[me.rank_level]}
+            </div>
+            {isKing && (
+              <p className="text-amber-200 animate-shimmer font-bold">
+                天下に冠たる王族の座、誠におめでとうございます！
+              </p>
+            )}
+            <div className="text-amber-300/60 text-xs tracking-widest pt-2">
+              — ROYAL COURT RANKING —
+            </div>
+          </div>
+        </ParchmentFrame>
       </div>
-    </ParchmentFrame>
+      <div className="mt-4 flex justify-center">
+        <ScreenshotButton
+          targetRef={captureRef}
+          fileName={`royal-court-${me.display_name || "guest"}.png`}
+          label="結果を画像で保存"
+        />
+      </div>
+    </>
   );
 }

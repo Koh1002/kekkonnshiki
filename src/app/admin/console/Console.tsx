@@ -1,10 +1,11 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Answer, GameState, Participant } from "@/types/game";
 import { PHASE_LABEL } from "@/lib/phases";
 import { RANK_NAMES, rankIconPath } from "@/lib/ranks";
+import { Timer, useCountdown } from "@/components/Timer";
 
 type AdminQuestion = {
   id: string;
@@ -15,6 +16,7 @@ type AdminQuestion = {
   option_b_label: string;
   correct_option: "A" | "B";
   commentary: string | null;
+  timer_seconds: number;
 };
 
 export function AdminConsole() {
@@ -116,6 +118,27 @@ export function AdminConsole() {
       setBusy(false);
     }
   }
+
+  // 制限時間切れで自動的に回答を締め切る
+  const autoLockedRef = useRef<string | null>(null);
+  const currentTimer = currentQuestion?.timer_seconds ?? 30;
+  const remaining = useCountdown(
+    state?.phase === "QUESTION" ? state.question_started_at : null,
+    currentTimer
+  );
+  useEffect(() => {
+    if (
+      state?.phase === "QUESTION" &&
+      state.current_question_id &&
+      state.question_started_at &&
+      remaining <= 0 &&
+      autoLockedRef.current !== state.current_question_id
+    ) {
+      autoLockedRef.current = state.current_question_id;
+      act("lock");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [remaining, state?.phase, state?.current_question_id, state?.question_started_at]);
 
   async function toggleActive(q: AdminQuestion) {
     await fetch("/api/admin/question", {
@@ -227,7 +250,7 @@ export function AdminConsole() {
               {currentQuestion && (
                 <div className="text-amber-100/80 text-sm mt-1">
                   出題中：第{currentQuestion.order_index}問「{currentQuestion.title}」
-                  （正解 {currentQuestion.correct_option}）
+                  （正解 {currentQuestion.correct_option}／制限 {currentQuestion.timer_seconds}秒）
                 </div>
               )}
               {phase === "QUESTION" || phase === "LOCKED" ? (
@@ -236,6 +259,13 @@ export function AdminConsole() {
                 </div>
               ) : null}
             </div>
+            {phase === "QUESTION" && state.question_started_at && (
+              <Timer
+                startedAt={state.question_started_at}
+                totalSeconds={currentTimer}
+                size="md"
+              />
+            )}
           </div>
 
           {error && (
@@ -349,6 +379,27 @@ export function AdminConsole() {
                     正解：{q.correct_option}
                     {q.commentary ? `｜解説：${q.commentary}` : ""}
                   </div>
+                  <label className="mt-2 inline-flex items-center gap-2 text-amber-200 text-xs">
+                    制限時間
+                    <input
+                      type="number"
+                      min={5}
+                      max={300}
+                      step={5}
+                      value={q.timer_seconds}
+                      onChange={async (e) => {
+                        const v = Math.max(5, Math.min(300, Number(e.target.value) || 30));
+                        await fetch("/api/admin/question", {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ id: q.id, timer_seconds: v }),
+                        });
+                        await loadQuestions();
+                      }}
+                      className="w-20 bg-black/40 border border-amber-500/40 rounded px-2 py-1 text-amber-100"
+                    />
+                    秒
+                  </label>
                 </div>
                 <div className="flex flex-col gap-1">
                   <button
@@ -411,6 +462,7 @@ function AddQuestionForm({ onCreated }: { onCreated: () => void | Promise<void> 
   const [bImage, setBImage] = useState("");
   const [correct, setCorrect] = useState<"A" | "B">("A");
   const [commentary, setCommentary] = useState("");
+  const [timerSeconds, setTimerSeconds] = useState<number>(30);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -431,6 +483,7 @@ function AddQuestionForm({ onCreated }: { onCreated: () => void | Promise<void> 
           option_b_image: bImage || null,
           correct_option: correct,
           commentary: commentary || null,
+          timer_seconds: timerSeconds,
           is_active: true,
         }),
       });
@@ -563,6 +616,20 @@ function AddQuestionForm({ onCreated }: { onCreated: () => void | Promise<void> 
           value={commentary}
           onChange={(e) => setCommentary(e.target.value)}
           maxLength={200}
+        />
+      </div>
+      <div>
+        <label className="text-amber-200 text-sm">制限時間（秒）</label>
+        <input
+          type="number"
+          min={5}
+          max={300}
+          step={5}
+          className={input}
+          value={timerSeconds}
+          onChange={(e) =>
+            setTimerSeconds(Math.max(5, Math.min(300, Number(e.target.value) || 30)))
+          }
         />
       </div>
       {err && (

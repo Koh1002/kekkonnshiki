@@ -30,6 +30,7 @@ export async function POST(req: Request) {
     correct_option?: "A" | "B";
     commentary?: string | null;
     is_active?: boolean;
+    timer_seconds?: number;
   };
   if (
     !body.title ||
@@ -42,6 +43,10 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
+  const timer =
+    typeof body.timer_seconds === "number" && body.timer_seconds > 0
+      ? Math.min(300, Math.round(body.timer_seconds))
+      : 30;
   const db = supabaseAdmin();
   // 末尾に追加するため最大 order_index + 1
   const { data: last } = await db
@@ -64,6 +69,7 @@ export async function POST(req: Request) {
       commentary: body.commentary ?? null,
       order_index: nextOrder,
       is_active: body.is_active ?? true,
+      timer_seconds: timer,
     })
     .select()
     .single();
@@ -86,6 +92,7 @@ export async function PATCH(req: Request) {
     option_b_image?: string | null;
     correct_option?: "A" | "B";
     commentary?: string | null;
+    timer_seconds?: number;
   };
   if (!body.id) {
     return NextResponse.json({ error: "id必須" }, { status: 400 });
@@ -102,6 +109,7 @@ export async function PATCH(req: Request) {
     "option_b_image",
     "correct_option",
     "commentary",
+    "timer_seconds",
   ] as const) {
     if (body[k] !== undefined) patch[k] = body[k];
   }

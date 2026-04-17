@@ -49,6 +49,7 @@
 
 左サイドバー **SQL Editor → "+ New query"** を開きます。
 
+### 3-a. 初回スキーマ
 1. リポジトリの [`supabase/migrations/001_init.sql`](../supabase/migrations/001_init.sql) をすべてコピーしてエディタに貼り付け
 2. 右下 **"Run"** をクリック
 3. 画面下部に `Success. No rows returned` と出れば成功
@@ -57,6 +58,14 @@
 - `questions` / `participants` / `answers` / `game_state` 4テーブル
 - RLS（行レベルセキュリティ）ポリシー
 - Realtime 購読対象テーブルの登録
+
+### 3-b. タイマーカラム追加（必須）
+続けて **"+ New query"** で新しいタブを開き、[`supabase/migrations/002_timer_and_roles.sql`](../supabase/migrations/002_timer_and_roles.sql) を貼り付けて **"Run"**。
+
+- `questions.timer_seconds`（デフォルト30秒）
+- `game_state.question_started_at`（出題開始時刻）
+
+が追加されます。
 
 ---
 

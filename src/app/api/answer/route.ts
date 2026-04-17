@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   // 受付可能フェーズ確認 & 現在の出題と一致するか確認
   const { data: state, error: sErr } = await db
     .from("game_state")
-    .select("phase, current_question_id")
+    .select("phase, current_question_id, question_started_at")
     .eq("id", 1)
     .single();
   if (sErr || !state) {
@@ -38,6 +38,24 @@ export async function POST(req: Request) {
       { error: "出題中の問題ではありません" },
       { status: 409 }
     );
+  }
+
+  // 制限時間チェック（わずかに猶予を持たせる）
+  const GRACE_MS = 1000;
+  if (state.question_started_at) {
+    const { data: q } = await db
+      .from("questions")
+      .select("timer_seconds")
+      .eq("id", question_id)
+      .single();
+    const totalMs = ((q?.timer_seconds ?? 30) as number) * 1000;
+    const elapsedMs = Date.now() - new Date(state.question_started_at).getTime();
+    if (elapsedMs > totalMs + GRACE_MS) {
+      return NextResponse.json(
+        { error: "制限時間を過ぎています" },
+        { status: 409 }
+      );
+    }
   }
 
   // 正解情報は REVEAL で再計算されるため、ここでは is_correct=false で保存。

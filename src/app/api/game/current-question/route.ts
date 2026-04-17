@@ -10,7 +10,9 @@ export async function GET() {
   const db = supabaseAdmin();
   const { data: state, error: sErr } = await db
     .from("game_state")
-    .select("phase, current_question_id, revealed_correct_option, revealed_commentary")
+    .select(
+      "phase, current_question_id, revealed_correct_option, revealed_commentary, question_started_at"
+    )
     .eq("id", 1)
     .single();
   if (sErr || !state) {
@@ -23,7 +25,7 @@ export async function GET() {
   const { data: q, error } = await db
     .from("questions")
     .select(
-      "id, order_index, title, description, option_a_label, option_a_image, option_b_label, option_b_image, correct_option, commentary"
+      "id, order_index, title, description, option_a_label, option_a_image, option_b_label, option_b_image, timer_seconds, correct_option, commentary"
     )
     .eq("id", state.current_question_id)
     .single();
@@ -41,6 +43,7 @@ export async function GET() {
     option_a_image: q.option_a_image,
     option_b_label: q.option_b_label,
     option_b_image: q.option_b_image,
+    timer_seconds: q.timer_seconds ?? 30,
   };
   if (revealVisible) {
     publicQ.correct_option = q.correct_option as "A" | "B";

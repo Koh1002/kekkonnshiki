@@ -14,6 +14,7 @@ export type GameState = {
   current_question_id: string | null;
   revealed_correct_option: Option | null;
   revealed_commentary: string | null;
+  question_started_at: string | null;
   updated_at: string;
 };
 
@@ -44,6 +45,7 @@ export type PublicQuestion = {
   option_a_image: string | null;
   option_b_label: string;
   option_b_image: string | null;
+  timer_seconds: number;
   correct_option?: Option;
   commentary?: string | null;
 };

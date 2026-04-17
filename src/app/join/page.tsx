@@ -21,9 +21,11 @@ export default function JoinPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "参加登録に失敗しました");
-      localStorage.setItem("participant_id", data.id);
-      localStorage.setItem("participant_name", data.display_name);
-      router.push("/play");
+      if (data.role === "participant") {
+        localStorage.setItem("participant_id", data.id);
+        localStorage.setItem("participant_name", data.display_name);
+      }
+      router.push(data.redirect ?? "/play");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -49,8 +51,10 @@ export default function JoinPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="例：山田 太郎"
-            maxLength={24}
+            maxLength={32}
             required
+            autoComplete="off"
+            autoCapitalize="off"
             className="w-full text-center text-2xl font-bold rounded-md bg-[#0a0608] border-2 border-amber-500/70 text-amber-100 py-4 px-4 focus:outline-none focus:border-amber-300"
           />
           {error && (

@@ -91,6 +91,7 @@ export async function POST(req: Request) {
           current_question_id: first.id,
           revealed_correct_option: null,
           revealed_commentary: null,
+          question_started_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
         .eq("id", 1);
@@ -215,6 +216,7 @@ export async function POST(req: Request) {
             current_question_id: next.id,
             revealed_correct_option: null,
             revealed_commentary: null,
+            question_started_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           })
           .eq("id", 1);
@@ -225,6 +227,7 @@ export async function POST(req: Request) {
             phase: "FINAL",
             revealed_correct_option: null,
             revealed_commentary: null,
+            question_started_at: null,
             updated_at: new Date().toISOString(),
           })
           .eq("id", 1);
@@ -245,6 +248,7 @@ export async function POST(req: Request) {
           current_question_id: null,
           revealed_correct_option: null,
           revealed_commentary: null,
+          question_started_at: null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", 1);
