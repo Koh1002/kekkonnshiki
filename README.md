@@ -1,94 +1,205 @@
 # 宮廷 格付け会 🏰
 
-結婚式余興用の **A/B 二択 格付けゲーム** アプリ。中世写本風UIで、司会者（管理者）が進行を完全同期制御。Next.js(App Router) + Supabase(Realtime) + Vercel。
+結婚式余興用の **A/B 二択 格付けゲーム** アプリ。中世写本風UIで、司会者（管理者）が進行を完全同期制御。
 
-## 主な機能
+> **技術スタック**：Next.js 14 (App Router) + TypeScript + Tailwind / Supabase (Postgres + Realtime + Storage) / Vercel
 
-- 参加者はQRコードから名前だけで参加（メールや電話番号不要）
-- 問題は最大5問まで可変。管理画面でON/OFFと並び替え
-- フェーズ同期：LOBBY → QUESTION → LOCKED → REVEAL → RANK_UPDATE →（次の問題 or FINAL）
-- 参加者画面は自分の格に応じてテーマカラーが変化（5段階）
-- 会場スクリーン（`/screen`）でQR表示・問題大写し・リアルタイム投票バー・格ピラミッド・最終王族発表
-- 格は 王族 / 一流貴族 / 二流貴族 / 三流貴族 / ご愛敬枠 の5段階
-- お年寄り配慮：巨大ボタン、常時「次に何をすればよいか」の案内、先へ進む操作は司会者のみ
+---
 
-## 5分セットアップ
+## 📖 ドキュメント
 
-### 1. Supabase
-1. 新規プロジェクト作成
-2. SQL Editor で `supabase/migrations/001_init.sql` を実行
-3. 続いて `supabase/seed.sql` を実行（仮問題が5問入る）
-4. Project Settings → API から以下を控える
-   - `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
-   - `anon public` → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `service_role` → `SUPABASE_SERVICE_ROLE_KEY`（**絶対に公開しない**）
+| ドキュメント | 内容 |
+|---|---|
+| [docs/SUPABASE_SETUP.md](./docs/SUPABASE_SETUP.md) | データベース構築の手順（15〜20分） |
+| [docs/VERCEL_SETUP.md](./docs/VERCEL_SETUP.md) | 本番公開＆環境変数設定の手順（10〜15分） |
+| 本 README | 全体像・機能・ローカル開発向け情報 |
 
-### 2. ローカル起動
-```bash
-cp .env.example .env.local
-# .env.local を編集して値を入れる
-npm install
-npm run dev
+---
+
+## 🎭 機能
+
+### 参加者
+- **QRコード参加**：会場スクリーンに表示されるQRを読み取り → **名前のみ** 入力して参加
+- 個人情報（メール、電話番号等）は一切収集しない
+- 問題ごとにA/Bの2択を大きなボタンでタップ。押し間違えても回答締切までは変更可
+- 自分の現在の「格」に応じて画面テーマ（色・額縁）が変化
+- 次のフェーズへは司会者がボタンを押すまで進まない＝勝手に先に進まない
+
+### 司会者（管理者）
+- 合言葉1つでログインする専用 `/admin/console`
+- 現在のフェーズと次に押すボタンが常に1つだけ大きく表示される
+- 参加者の回答状況・現在の格がリアルタイム表示
+- 問題の追加・削除・有効/無効切替・順序変更が画面上で可能
+- ゲーム全体の「リセット」ボタンもあり
+
+### 会場スクリーン (`/screen`)
+- プロジェクタ投影用の大画面レイアウト
+- LOBBY：**特大QRコード** ＋ 参加者名が入場するアニメーション
+- QUESTION：問題文・A/B選択肢・画像を左右対称に表示／回答済み人数カウンタ
+- REVEAL：正解の巨大表示＋解説文＋A/B投票比率バー
+- RANK_UPDATE：5段の格ピラミッドに全参加者が配置されるアニメ
+- FINAL：**王族** が中央で豪奢に表彰（同列なら正解数でタイブレーク）
+
+### 格（5段階）
+| Lv | 称号 | テーマ |
+|---|---|---|
+| 5 | 王族 | 漆黒×金・紫ベルベット |
+| 4 | 一流貴族 | 紺×銀 |
+| 3 | 二流貴族（開始位置） | 臙脂×銅 |
+| 2 | 三流貴族 | 土色×木目 |
+| 1 | ご愛敬枠 | 羊皮紙・モノクロ |
+
+- 全員がLv3から開始、正解で+1、不正解で-1、1〜5でクリップ
+- 未回答は不正解扱い
+
+### フェーズ遷移（すべて司会者が制御）
+```
+LOBBY ─[ゲーム開始]→ QUESTION ─[締め切る]→ LOCKED
+  ↑                                             │
+  │                                             ▼
+FINAL ←─[最終結果]─ RANK_UPDATE ←[格変動]─ REVEAL
+         （最終問題時のみ）     │
+                              └─[次の問題]→ QUESTION
 ```
 
-### 3. Vercel デプロイ
-1. このリポジトリを Vercel に接続
-2. Environment Variables に `.env.example` の項目を登録
-3. `NEXT_PUBLIC_APP_URL` には本番URL（例: `https://kekkonnshiki.vercel.app`）を設定
+---
 
-## 当日の使い方
+## 🚀 セットアップ（本番運用）
 
-1. 司会者は `/admin` にアクセスし合言葉でログイン → `/admin/console`
-2. 別タブで `/screen` を開きプロジェクタに全画面で映す（QRコードが表示される）
-3. 参加者はQRコードを読み取り、名前のみ入力して参加
-4. コンソールの大ボタンで以下を押していくだけ：
-   - 「ゲーム開始」→「回答を締め切る」→「答えを表示する」→「格変動を表示する」→「次の問題へ」…
-5. 全問終了後は「最終結果を発表」で王族が発表されます
+所要時間：**約30分**。
 
-## 問題の差し替え
+1. **Supabase を用意する** → [docs/SUPABASE_SETUP.md](./docs/SUPABASE_SETUP.md)
+2. **Vercel にデプロイする** → [docs/VERCEL_SETUP.md](./docs/VERCEL_SETUP.md)
+3. **当日までにテストプレイ**（参加テスト＆リセット）
 
-- 管理コンソールの「問題管理」で ON/OFF・並び替えが可能
-- 問題内容の編集や追加は Supabase Dashboard の Table Editor（`questions` テーブル）から直接、または SQL で
-- 写真を使う場合は Supabase Storage に画像をアップロードし、公開URLを `option_a_image` / `option_b_image` に貼り付け
+各ドキュメントに画面操作レベルで手順が書いてあります。IT初心者でも順番に進めれば完走できるよう意識しました。
 
-## 格（爵位）アイコンの差し替え
+---
 
-`/public/ranks/1.svg` 〜 `5.svg` が既定の中世写本風SVG。AI画像生成で作った512×512 PNGを用意したら、同名（.svg→.pngでも可）で上書きすればOK。参照は `src/lib/ranks.ts` の `rankIconPath()` 一箇所で集中管理。
+## 💻 ローカル開発
 
-推奨プロンプト例：
-- Lv5 王族: "illuminated manuscript king, crown with laurel, gold leaf, deep purple"
-- Lv4 一流貴族: "queen tiara, silver, rose, navy background, medieval manuscript"
-- Lv3 二流貴族: "knight helm and sword, crimson shield, bronze"
-- Lv2 三流貴族: "wheat sheaf heraldry, parchment, muted earth tones"
-- Lv1 ご愛敬枠: "plain quill pen on parchment, humble monochrome"
+```bash
+git clone <このリポジトリ>
+cd kekkonnshiki
+cp .env.example .env.local
+# .env.local を Supabase の値で埋める
+npm install
+npm run dev
+# → http://localhost:3000
+```
 
-## 技術メモ
+必要な環境変数は [`.env.example`](./.env.example) 参照。
 
-- 書き込みはすべて Next.js API Routes（service role）を経由。クライアントからは anon key で読み込みのみ
-- RLS は `questions` テーブルのみ SELECT不許可（正解の漏洩防止）。`/api/game/current-question` がフェーズに応じて正解・解説を除外/付与
-- `answers.is_correct` は LOCKED→REVEAL 遷移時にサーバで計算（回答時点では正解が漏れない）
-- フェーズ遷移は `POST /api/admin/phase { action }` で管理者認証Cookieつきのみ実行可
+```bash
+# 管理者Cookie用シークレットの生成（ローカルでも必須）
+openssl rand -hex 32
+```
 
-## ディレクトリ
+---
+
+## 🎯 当日の使い方（超要約）
+
+1. ノートPC①を会場プロジェクタに接続し `/screen` を全画面表示
+2. ノートPC② or スマホで `/admin` にログインし `/admin/console` を開きっぱなし
+3. 参加者はスクリーンのQRを読み取り、名前を入れるだけで参加
+4. 司会者はコンソールの**大きなボタンを上から順に押していくだけ**
+5. 最後に「最終結果を発表」→ 王族が豪華に表彰 → 「ゲームをリセット」で終了
+
+→ 詳しい当日の操作は [docs/VERCEL_SETUP.md §9](./docs/VERCEL_SETUP.md) のチートシート参照。
+
+---
+
+## 📷 画像の使い方
+
+問題の選択肢に写真を使う場合：
+
+1. [Supabase Storage](./docs/SUPABASE_SETUP.md#6-画像を使う場合storage設定) に画像をアップロード
+2. 公開URLをコピー
+3. 管理コンソールの「新しい問題を追加」or Table Editor で `option_a_image` / `option_b_image` にそのURLを貼り付け
+
+---
+
+## 🎨 格アイコンの差し替え
+
+`public/ranks/1.svg` 〜 `5.svg` が既定の中世写本風アイコン。AI 画像生成（ChatGPT / Midjourney / Stable Diffusion 等）で **512×512 PNG** を作って同名で上書きすると、コード変更なしで差し替え可能。
+
+推奨プロンプト（英語）：
+- **Lv5 王族**: "Illuminated manuscript king card, crown with laurel, gold leaf, deep purple, medieval heraldry, square 1:1"
+- **Lv4 一流貴族**: "Queen tiara with rose, silver and navy, medieval manuscript painting"
+- **Lv3 二流貴族**: "Knight helm and sword, crimson shield, bronze, heraldic style"
+- **Lv2 三流貴族**: "Wheat sheaf heraldry, parchment, muted earth tones"
+- **Lv1 ご愛敬枠**: "Simple quill pen on worn parchment, humble monochrome"
+
+---
+
+## 🧱 アーキテクチャ概要
+
+```
+[参加者スマホ] ───QR───> /join → /play (Realtime購読)
+                                    │
+[会場プロジェクタ] ─────────────> /screen (Realtime購読)
+                                    │
+[司会者PC]    ───合言葉──> /admin → /admin/console ─API─> Supabase
+                                                          │
+                                                          ▼
+                                              [Postgres + Realtime + Storage]
+```
+
+- 書き込みはすべて Next.js API Routes（`service_role`）経由
+- クライアントからは `anon key` で読み取りのみ＆Realtime購読
+- `questions.correct_option` はクライアントに直接公開せず、`/api/game/current-question` がフェーズに応じて除外/付与
+- `answers.is_correct` は LOCKED→REVEAL 遷移時にサーバで計算するため、Realtime経由でも正解が漏れない
+- 管理者認証は HMAC 署名付き Cookie（12時間有効）
+
+---
+
+## 📁 ディレクトリ
 
 ```
 src/
   app/
-    page.tsx               ランディング
-    join/page.tsx          参加者：名前入力
-    play/page.tsx          参加者：プレイ画面（フェーズ切替）
-    screen/page.tsx        会場プロジェクタ用
-    admin/page.tsx         管理者ログイン
-    admin/console/…        管理コンソール
+    page.tsx                   ランディング
+    join/page.tsx              参加者：名前入力
+    play/page.tsx              参加者：プレイ画面（フェーズ切替）
+    screen/page.tsx            会場プロジェクタ用
+    admin/page.tsx             管理者ログイン
+    admin/console/             管理コンソール
     api/
-      join/                参加登録
-      answer/              回答送信
-      admin/login/         合言葉ログイン
-      admin/phase/         フェーズ進行
-      admin/question/      問題管理
-      game/current-question/ フェーズ別の出題データ取得
+      join/                    参加登録
+      answer/                  回答送信
+      admin/login/             合言葉ログイン
+      admin/phase/             フェーズ進行
+      admin/question/          問題CRUD
+      game/current-question/   フェーズ別の出題データ取得
+  components/{ParchmentFrame,RankIcon}.tsx
   lib/{supabase,supabaseAdmin,ranks,phases,auth}.ts
   types/game.ts
 public/ranks/{1..5}.svg
-supabase/{migrations,seed}.sql
+supabase/
+  migrations/001_init.sql
+  seed.sql
+docs/
+  SUPABASE_SETUP.md
+  VERCEL_SETUP.md
 ```
+
+---
+
+## 💰 費用
+
+Vercel Hobby + Supabase Free = **無料** で運用可能（結婚式一回分なら余裕の範囲内）。
+
+---
+
+## ⚠️ 運用上の注意
+
+- `SUPABASE_SERVICE_ROLE_KEY` は**絶対に公開しない**（GitHubにも絶対にコミットしない）
+- 本番運用前に必ずリハーサルする。参加者数分のスマホで負荷テストも推奨
+- 会場 Wi-Fi の回線品質次第でRealtime遅延が出る。有線LANの司会者PCを基準にする
+- 当日は `/admin/console` と `/screen` のタブを開きっぱなしにしておく
+
+---
+
+## 📝 ライセンス
+
+Private / 結婚式余興用
