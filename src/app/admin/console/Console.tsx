@@ -1,0 +1,582 @@
+"use client";
+/* eslint-disable @next/next/no-img-element */
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import type { Answer, GameState, Participant } from "@/types/game";
+import { PHASE_LABEL } from "@/lib/phases";
+import { RANK_NAMES, rankIconPath } from "@/lib/ranks";
+
+type AdminQuestion = {
+  id: string;
+  order_index: number;
+  is_active: boolean;
+  title: string;
+  option_a_label: string;
+  option_b_label: string;
+  correct_option: "A" | "B";
+  commentary: string | null;
+};
+
+export function AdminConsole() {
+  const [state, setState] = useState<GameState | null>(null);
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [questions, setQuestions] = useState<AdminQuestion[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function loadQuestions() {
+    const res = await fetch("/api/admin/question", { cache: "no-store" });
+    if (res.ok) setQuestions(await res.json());
+  }
+
+  useEffect(() => {
+    (async () => {
+      const [{ data: gs }, { data: ps }, { data: ans }] = await Promise.all([
+        supabase.from("game_state").select("*").eq("id", 1).single(),
+        supabase.from("participants").select("*").order("joined_at"),
+        supabase.from("answers").select("*"),
+      ]);
+      if (gs) setState(gs as GameState);
+      if (ps) setParticipants(ps as Participant[]);
+      if (ans) setAnswers(ans as Answer[]);
+      await loadQuestions();
+    })();
+
+    const ch = supabase
+      .channel("admin-console")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "game_state", filter: "id=eq.1" },
+        (payload) => payload.new && setState(payload.new as GameState)
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "participants" },
+        async () => {
+          const { data } = await supabase
+            .from("participants")
+            .select("*")
+            .order("joined_at");
+          if (data) setParticipants(data as Participant[]);
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "answers" },
+        async () => {
+          const { data } = await supabase.from("answers").select("*");
+          if (data) setAnswers(data as Answer[]);
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, []);
+
+  const currentAnswers = useMemo(
+    () =>
+      state?.current_question_id
+        ? answers.filter((a) => a.question_id === state.current_question_id)
+        : [],
+    [answers, state?.current_question_id]
+  );
+
+  const activeQuestions = useMemo(
+    () => questions.filter((q) => q.is_active).sort((a, b) => a.order_index - b.order_index),
+    [questions]
+  );
+
+  const currentQuestion = useMemo(
+    () => questions.find((q) => q.id === state?.current_question_id) ?? null,
+    [questions, state?.current_question_id]
+  );
+
+  const hasNextQuestion = useMemo(() => {
+    if (!currentQuestion) return activeQuestions.length > 0;
+    return activeQuestions.some((q) => q.order_index > currentQuestion.order_index);
+  }, [activeQuestions, currentQuestion]);
+
+  async function act(action: string) {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/phase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "操作に失敗しました");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function toggleActive(q: AdminQuestion) {
+    await fetch("/api/admin/question", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: q.id, is_active: !q.is_active }),
+    });
+    await loadQuestions();
+  }
+
+  async function move(q: AdminQuestion, dir: -1 | 1) {
+    const sorted = [...questions].sort((a, b) => a.order_index - b.order_index);
+    const idx = sorted.findIndex((x) => x.id === q.id);
+    const target = sorted[idx + dir];
+    if (!target) return;
+    await Promise.all([
+      fetch("/api/admin/question", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: q.id, order_index: target.order_index }),
+      }),
+      fetch("/api/admin/question", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: target.id, order_index: q.order_index }),
+      }),
+    ]);
+    await loadQuestions();
+  }
+
+  async function deleteQuestion(q: AdminQuestion) {
+    if (!confirm(`「${q.title}」を削除しますか？`)) return;
+    await fetch(`/api/admin/question?id=${q.id}`, { method: "DELETE" });
+    await loadQuestions();
+  }
+
+  async function logout() {
+    await fetch("/api/admin/login", { method: "DELETE" });
+    window.location.href = "/admin";
+  }
+
+  if (!state) {
+    return (
+      <main className="min-h-screen parchment-dark flex items-center justify-center text-amber-200">
+        読み込み中…
+      </main>
+    );
+  }
+
+  const phase = state.phase;
+  const actions: { key: string; label: string; primary?: boolean; danger?: boolean }[] = [];
+  switch (phase) {
+    case "LOBBY":
+      actions.push({
+        key: "start",
+        label: activeQuestions.length > 0 ? "ゲーム開始（第一問へ）" : "有効な問題がありません",
+        primary: true,
+      });
+      break;
+    case "QUESTION":
+      actions.push({ key: "lock", label: "回答を締め切る", primary: true });
+      break;
+    case "LOCKED":
+      actions.push({ key: "reveal", label: "答えを表示する", primary: true });
+      break;
+    case "REVEAL":
+      actions.push({ key: "applyRank", label: "格変動を表示する", primary: true });
+      break;
+    case "RANK_UPDATE":
+      actions.push({
+        key: "next",
+        label: hasNextQuestion ? "次の問題へ" : "最終結果を発表",
+        primary: true,
+      });
+      break;
+    case "FINAL":
+      break;
+  }
+  actions.push({ key: "reset", label: "ゲームをリセット", danger: true });
+
+  return (
+    <main className="min-h-screen parchment-dark text-amber-100 p-4 sm:p-8">
+      <div className="max-w-6xl mx-auto space-y-6">
+        <header className="flex items-center justify-between gap-3">
+          <div>
+            <div className="font-display tracking-[0.3em] text-amber-300 text-xs">
+              CONSOLE
+            </div>
+            <h1 className="font-display text-amber-200 text-2xl sm:text-3xl">
+              司会進行 コンソール
+            </h1>
+          </div>
+          <button
+            onClick={logout}
+            className="text-amber-400/70 hover:text-amber-300 text-sm underline underline-offset-4"
+          >
+            ログアウト
+          </button>
+        </header>
+
+        {/* 現在のフェーズ */}
+        <section className="rounded-lg border border-amber-500/40 bg-black/30 p-5">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <div className="text-amber-300/80 text-xs tracking-widest">現在のフェーズ</div>
+              <div className="font-display text-amber-200 text-3xl">
+                {PHASE_LABEL[phase]}
+              </div>
+              {currentQuestion && (
+                <div className="text-amber-100/80 text-sm mt-1">
+                  出題中：第{currentQuestion.order_index}問「{currentQuestion.title}」
+                  （正解 {currentQuestion.correct_option}）
+                </div>
+              )}
+              {phase === "QUESTION" || phase === "LOCKED" ? (
+                <div className="text-amber-100/80 text-sm">
+                  回答済み {currentAnswers.length}／{participants.length}名
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          {error && (
+            <div className="mt-3 text-red-200 text-sm bg-red-900/40 border border-red-500/40 rounded p-2">
+              {error}
+            </div>
+          )}
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            {actions.map((a) => (
+              <button
+                key={a.key}
+                onClick={() => {
+                  if (a.key === "reset" && !confirm("本当にリセットしますか？")) return;
+                  act(a.key);
+                }}
+                disabled={
+                  busy ||
+                  (a.key === "start" && activeQuestions.length === 0) ||
+                  (phase === "FINAL" && a.key !== "reset")
+                }
+                className={`px-5 py-3 rounded-md border-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed
+                  ${a.primary
+                    ? "border-amber-400 bg-amber-500/20 hover:bg-amber-500/30 text-amber-100 font-bold"
+                    : a.danger
+                      ? "border-red-500 bg-red-900/30 hover:bg-red-900/50 text-red-100"
+                      : "border-amber-500/50 bg-black/30 hover:bg-amber-500/10 text-amber-100"}
+                `}
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* 参加者一覧 */}
+        <section className="rounded-lg border border-amber-500/40 bg-black/30 p-5">
+          <h2 className="font-display text-amber-200 text-lg mb-3">
+            参加者（{participants.length}名）
+          </h2>
+          <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {participants.map((p) => {
+              const ans = currentAnswers.find((a) => a.participant_id === p.id);
+              return (
+                <div
+                  key={p.id}
+                  className="flex items-center gap-2 border border-amber-500/20 bg-black/40 rounded p-2"
+                >
+                  <img
+                    src={rankIconPath(p.rank_level)}
+                    alt=""
+                    className="w-9 h-9 rounded-full"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="truncate text-amber-100">{p.display_name}</div>
+                    <div className="text-xs text-amber-300">
+                      {RANK_NAMES[p.rank_level]}（正解{p.correct_count}）
+                    </div>
+                  </div>
+                  {phase === "QUESTION" || phase === "LOCKED" ? (
+                    <span
+                      className={`text-xs px-2 py-1 rounded ${
+                        ans
+                          ? "bg-emerald-900/40 text-emerald-200 border border-emerald-500/40"
+                          : "bg-stone-800 text-stone-300 border border-stone-500/40"
+                      }`}
+                    >
+                      {ans ? "回答済" : "未回答"}
+                    </span>
+                  ) : null}
+                </div>
+              );
+            })}
+            {participants.length === 0 && (
+              <div className="text-amber-200/70 text-sm">まだ参加者がいません。</div>
+            )}
+          </div>
+        </section>
+
+        {/* 問題管理 */}
+        <section className="rounded-lg border border-amber-500/40 bg-black/30 p-5">
+          <h2 className="font-display text-amber-200 text-lg mb-3">
+            問題管理（最大5問まで出題できます）
+          </h2>
+          <div className="text-amber-300/80 text-xs mb-3">
+            チェックを入れた問題が ON。▲▼ で順序を入れ替え。
+          </div>
+          <div className="space-y-2">
+            {questions.map((q) => (
+              <div
+                key={q.id}
+                className="flex items-start gap-3 border border-amber-500/20 bg-black/30 rounded p-3"
+              >
+                <label className="flex items-center gap-2 mt-1">
+                  <input
+                    type="checkbox"
+                    checked={q.is_active}
+                    onChange={() => toggleActive(q)}
+                    className="w-5 h-5 accent-amber-400"
+                  />
+                  <span className="text-amber-200 text-sm">有効</span>
+                </label>
+                <div className="flex-1 min-w-0">
+                  <div className="text-amber-100 font-bold">
+                    第{q.order_index}問：{q.title}
+                  </div>
+                  <div className="text-amber-200/80 text-sm">
+                    Ａ：{q.option_a_label} ／ Ｂ：{q.option_b_label}
+                  </div>
+                  <div className="text-amber-300 text-xs">
+                    正解：{q.correct_option}
+                    {q.commentary ? `｜解説：${q.commentary}` : ""}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <button
+                    onClick={() => move(q, -1)}
+                    className="px-2 py-1 border border-amber-500/40 rounded text-amber-200 hover:bg-amber-500/10"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    onClick={() => move(q, 1)}
+                    className="px-2 py-1 border border-amber-500/40 rounded text-amber-200 hover:bg-amber-500/10"
+                  >
+                    ▼
+                  </button>
+                  <button
+                    onClick={() => deleteQuestion(q)}
+                    className="px-2 py-1 border border-red-500/60 rounded text-red-200 hover:bg-red-900/30 text-xs"
+                  >
+                    削除
+                  </button>
+                </div>
+              </div>
+            ))}
+            {questions.length === 0 && (
+              <div className="text-amber-200/70 text-sm">
+                問題が登録されていません。下のフォームから追加してください。
+              </div>
+            )}
+          </div>
+
+          <AddQuestionForm onCreated={loadQuestions} />
+        </section>
+
+        {/* 投影用リンク */}
+        <section className="rounded-lg border border-amber-500/40 bg-black/30 p-5">
+          <h2 className="font-display text-amber-200 text-lg mb-2">会場スクリーン</h2>
+          <p className="text-amber-100/80 text-sm mb-2">
+            プロジェクタに映す画面。フルスクリーンでお使いください。
+          </p>
+          <a
+            href="/screen"
+            target="_blank"
+            className="inline-block px-4 py-2 rounded border border-amber-500/60 text-amber-200 hover:bg-amber-500/10"
+          >
+            /screen を新しいタブで開く
+          </a>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function AddQuestionForm({ onCreated }: { onCreated: () => void | Promise<void> }) {
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [aLabel, setALabel] = useState("");
+  const [bLabel, setBLabel] = useState("");
+  const [aImage, setAImage] = useState("");
+  const [bImage, setBImage] = useState("");
+  const [correct, setCorrect] = useState<"A" | "B">("A");
+  const [commentary, setCommentary] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setErr(null);
+    try {
+      const res = await fetch("/api/admin/question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description: description || null,
+          option_a_label: aLabel,
+          option_a_image: aImage || null,
+          option_b_label: bLabel,
+          option_b_image: bImage || null,
+          correct_option: correct,
+          commentary: commentary || null,
+          is_active: true,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "追加に失敗しました");
+      setTitle("");
+      setDescription("");
+      setALabel("");
+      setBLabel("");
+      setAImage("");
+      setBImage("");
+      setCommentary("");
+      setCorrect("A");
+      await onCreated();
+      setOpen(false);
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="mt-4 px-4 py-2 rounded border border-amber-500/60 text-amber-200 hover:bg-amber-500/10"
+      >
+        ＋ 新しい問題を追加
+      </button>
+    );
+  }
+
+  const input =
+    "w-full rounded bg-black/40 border border-amber-500/50 text-amber-100 px-3 py-2 focus:outline-none focus:border-amber-300";
+
+  return (
+    <form onSubmit={submit} className="mt-4 border border-amber-500/40 rounded-lg p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="font-display text-amber-200">新しい問題</h3>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="text-amber-300 text-sm hover:underline"
+        >
+          キャンセル
+        </button>
+      </div>
+      <div>
+        <label className="text-amber-200 text-sm">タイトル（必須）</label>
+        <input
+          className={input}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          maxLength={120}
+          placeholder="例：第〇問：高級和牛はどちら？"
+        />
+      </div>
+      <div>
+        <label className="text-amber-200 text-sm">補足説明</label>
+        <input
+          className={input}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          maxLength={200}
+        />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <label className="text-amber-200 text-sm">Ａの説明（必須）</label>
+          <input
+            className={input}
+            value={aLabel}
+            onChange={(e) => setALabel(e.target.value)}
+            required
+          />
+          <label className="text-amber-200 text-sm">Ａの画像URL（任意）</label>
+          <input
+            className={input}
+            value={aImage}
+            onChange={(e) => setAImage(e.target.value)}
+            placeholder="https://…"
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-amber-200 text-sm">Ｂの説明（必須）</label>
+          <input
+            className={input}
+            value={bLabel}
+            onChange={(e) => setBLabel(e.target.value)}
+            required
+          />
+          <label className="text-amber-200 text-sm">Ｂの画像URL（任意）</label>
+          <input
+            className={input}
+            value={bImage}
+            onChange={(e) => setBImage(e.target.value)}
+            placeholder="https://…"
+          />
+        </div>
+      </div>
+      <div>
+        <label className="text-amber-200 text-sm mr-4">正解</label>
+        <label className="text-amber-100 mr-4">
+          <input
+            type="radio"
+            name="correct"
+            checked={correct === "A"}
+            onChange={() => setCorrect("A")}
+            className="mr-1 accent-amber-400"
+          />
+          Ａ
+        </label>
+        <label className="text-amber-100">
+          <input
+            type="radio"
+            name="correct"
+            checked={correct === "B"}
+            onChange={() => setCorrect("B")}
+            className="mr-1 accent-amber-400"
+          />
+          Ｂ
+        </label>
+      </div>
+      <div>
+        <label className="text-amber-200 text-sm">解説（正解発表時に表示）</label>
+        <input
+          className={input}
+          value={commentary}
+          onChange={(e) => setCommentary(e.target.value)}
+          maxLength={200}
+        />
+      </div>
+      {err && (
+        <div className="text-red-200 text-sm bg-red-900/40 border border-red-500/40 rounded p-2">
+          {err}
+        </div>
+      )}
+      <button
+        type="submit"
+        disabled={saving}
+        className="px-5 py-2 rounded border-2 border-amber-400 bg-amber-500/20 hover:bg-amber-500/30 text-amber-100 disabled:opacity-40"
+      >
+        {saving ? "追加中…" : "この問題を追加する"}
+      </button>
+    </form>
+  );
+}

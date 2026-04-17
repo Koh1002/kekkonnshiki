@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="ご愛敬枠">
+  <defs>
+    <radialGradient id="g1bg" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#ece0c2"/>
+      <stop offset="100%" stop-color="#b8a780"/>
+    </radialGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#g1bg)"/>
+  <circle cx="128" cy="128" r="108" fill="none" stroke="#5a4a2a" stroke-width="2"/>
+  <circle cx="128" cy="128" r="98" fill="none" stroke="#5a4a2a" stroke-width="0.75" stroke-dasharray="2 4"/>
+  <!-- インク壺 -->
+  <g>
+    <ellipse cx="96" cy="182" rx="20" ry="6" fill="#3a2a16"/>
+    <path d="M78 182 v-20 q0 -6 18 -6 q18 0 18 6 v20 z" fill="#2a1c0c" stroke="#14090a" stroke-width="1"/>
+    <ellipse cx="96" cy="162" rx="18" ry="4" fill="#14090a"/>
+  </g>
+  <!-- 羽根ペン -->
+  <g transform="translate(150 70) rotate(28)">
+    <path d="M0 0 q8 40 -4 100 q-10 -6 -14 -14 q6 -44 18 -86 z" fill="#f4ecd8" stroke="#5a4a2a" stroke-width="1.5"/>
+    <path d="M0 0 q8 40 -4 100" stroke="#5a4a2a" stroke-width="1" fill="none"/>
+    <path d="M-8 30 q-8 -4 -14 -2 M-10 50 q-10 -4 -16 -2 M-12 70 q-10 -4 -18 -2" stroke="#7a6940" stroke-width="1" fill="none"/>
+    <line x1="0" y1="100" x2="6" y2="118" stroke="#3a2a16" stroke-width="2"/>
+  </g>
+  <text x="128" y="232" text-anchor="middle" fill="#3a2a16" font-family="'Cinzel', serif" font-size="16" letter-spacing="2">AMICUS</text>
+</svg>
