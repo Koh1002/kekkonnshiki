@@ -1,7 +1,8 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { collection, doc, onSnapshot, orderBy, query } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import type { Answer, GameState, Participant } from "@/types/game";
 import { PHASE_LABEL } from "@/lib/phases";
 import { RANK_NAMES, rankIconPath } from "@/lib/ranks";
@@ -33,47 +34,27 @@ export function AdminConsole() {
   }
 
   useEffect(() => {
-    (async () => {
-      const [{ data: gs }, { data: ps }, { data: ans }] = await Promise.all([
-        supabase.from("game_state").select("*").eq("id", 1).single(),
-        supabase.from("participants").select("*").order("joined_at"),
-        supabase.from("answers").select("*"),
-      ]);
-      if (gs) setState(gs as GameState);
-      if (ps) setParticipants(ps as Participant[]);
-      if (ans) setAnswers(ans as Answer[]);
-      await loadQuestions();
-    })();
-
-    const ch = supabase
-      .channel("admin-console")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "game_state", filter: "id=eq.1" },
-        (payload) => payload.new && setState(payload.new as GameState)
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "participants" },
-        async () => {
-          const { data } = await supabase
-            .from("participants")
-            .select("*")
-            .order("joined_at");
-          if (data) setParticipants(data as Participant[]);
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "answers" },
-        async () => {
-          const { data } = await supabase.from("answers").select("*");
-          if (data) setAnswers(data as Answer[]);
-        }
-      )
-      .subscribe();
+    loadQuestions();
+    const unsubState = onSnapshot(doc(db(), "gameState", "current"), (snap) => {
+      if (snap.exists()) setState(snap.data() as GameState);
+    });
+    const unsubParts = onSnapshot(
+      query(collection(db(), "participants"), orderBy("joined_at", "asc")),
+      (snap) => {
+        setParticipants(
+          snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Participant, "id">) }))
+        );
+      }
+    );
+    const unsubAns = onSnapshot(collection(db(), "answers"), (snap) => {
+      setAnswers(
+        snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Answer, "id">) }))
+      );
+    });
     return () => {
-      supabase.removeChannel(ch);
+      unsubState();
+      unsubParts();
+      unsubAns();
     };
   }, []);
 
@@ -424,8 +405,23 @@ export function AdminConsole() {
               </div>
             ))}
             {questions.length === 0 && (
-              <div className="text-amber-200/70 text-sm">
-                問題が登録されていません。下のフォームから追加してください。
+              <div className="text-amber-200/80 text-sm space-y-2">
+                <p>問題が登録されていません。下のフォームから追加するか、仮問題を一括投入できます。</p>
+                <button
+                  onClick={async () => {
+                    if (!confirm("仮問題5問を投入しますか？")) return;
+                    const res = await fetch("/api/admin/seed", { method: "POST" });
+                    const data = await res.json();
+                    if (!res.ok) {
+                      alert(data.error ?? "投入に失敗しました");
+                      return;
+                    }
+                    await loadQuestions();
+                  }}
+                  className="px-4 py-2 rounded border border-amber-500/60 text-amber-200 hover:bg-amber-500/10"
+                >
+                  仮問題5問を一括投入
+                </button>
               </div>
             )}
           </div>

@@ -9,7 +9,6 @@ export type Phase =
 export type Option = "A" | "B";
 
 export type GameState = {
-  id: number;
   phase: Phase;
   current_question_id: string | null;
   revealed_correct_option: Option | null;

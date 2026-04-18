@@ -2,7 +2,7 @@
 
 結婚式余興用の **A/B 二択 格付けゲーム** アプリ。中世写本風UIで、司会者（管理者）が進行を完全同期制御。
 
-> **技術スタック**：Next.js 14 (App Router) + TypeScript + Tailwind / Supabase (Postgres + Realtime + Storage) / Vercel
+> **技術スタック**：Next.js 14 (App Router) + TypeScript + Tailwind / Firebase (Firestore + Storage) / Vercel
 
 ---
 
@@ -10,7 +10,7 @@
 
 | ドキュメント | 内容 |
 |---|---|
-| [docs/SUPABASE_SETUP.md](./docs/SUPABASE_SETUP.md) | データベース構築の手順（15〜20分） |
+| [docs/FIREBASE_SETUP.md](./docs/FIREBASE_SETUP.md) | データベース構築の手順（10〜15分） |
 | [docs/VERCEL_SETUP.md](./docs/VERCEL_SETUP.md) | 本番公開＆環境変数設定の手順（10〜15分） |
 | 本 README | 全体像・機能・ローカル開発向け情報 |
 
@@ -81,9 +81,9 @@ FINAL ←─[最終結果]─ RANK_UPDATE ←[格変動]─ REVEAL
 
 ## 🚀 セットアップ（本番運用）
 
-所要時間：**約30分**。
+所要時間：**約25分**。
 
-1. **Supabase を用意する** → [docs/SUPABASE_SETUP.md](./docs/SUPABASE_SETUP.md)
+1. **Firebase を用意する** → [docs/FIREBASE_SETUP.md](./docs/FIREBASE_SETUP.md)
 2. **Vercel にデプロイする** → [docs/VERCEL_SETUP.md](./docs/VERCEL_SETUP.md)
 3. **当日までにテストプレイ**（参加テスト＆リセット）
 
@@ -128,9 +128,9 @@ openssl rand -hex 32
 
 問題の選択肢に写真を使う場合：
 
-1. [Supabase Storage](./docs/SUPABASE_SETUP.md#6-画像を使う場合storage設定) に画像をアップロード
+1. [Firebase Storage](./docs/FIREBASE_SETUP.md#8-画像を使う場合firebase-storage) に画像をアップロード
 2. 公開URLをコピー
-3. 管理コンソールの「新しい問題を追加」or Table Editor で `option_a_image` / `option_b_image` にそのURLを貼り付け
+3. 管理コンソールの「新しい問題を追加」で `Ａの画像URL` / `Ｂの画像URL` にそのURLを貼り付け
 
 ---
 
@@ -150,20 +150,20 @@ openssl rand -hex 32
 ## 🧱 アーキテクチャ概要
 
 ```
-[参加者スマホ] ───QR───> /join → /play (Realtime購読)
+[参加者スマホ] ───QR───> /join → /play (onSnapshot 購読)
                                     │
-[会場プロジェクタ] ─────────────> /screen (Realtime購読)
+[会場プロジェクタ] ─────────────> /screen (onSnapshot 購読)
                                     │
-[司会者PC]    ───合言葉──> /admin → /admin/console ─API─> Supabase
+[司会者PC]    ───合言葉──> /admin → /admin/console ─API─> Firebase
                                                           │
                                                           ▼
-                                              [Postgres + Realtime + Storage]
+                                              [Firestore + Storage]
 ```
 
-- 書き込みはすべて Next.js API Routes（`service_role`）経由
-- クライアントからは `anon key` で読み取りのみ＆Realtime購読
-- `questions.correct_option` はクライアントに直接公開せず、`/api/game/current-question` がフェーズに応じて除外/付与
-- `answers.is_correct` は LOCKED→REVEAL 遷移時にサーバで計算するため、Realtime経由でも正解が漏れない
+- 書き込みはすべて Next.js API Routes（Firebase Admin SDK / service account）経由
+- クライアントは Web SDK の `onSnapshot` で読み取りのみ＆リアルタイム反映
+- `questions` コレクションはセキュリティルールで **クライアント直読不可**。`/api/game/current-question` がフェーズに応じて正解・解説を除外/付与
+- `answers.is_correct` は LOCKED→REVEAL 遷移時にサーバで計算するため、リアルタイム経由でも正解が漏れない
 - 管理者認証は HMAC 署名付き Cookie（12時間有効）
 
 ---
@@ -185,16 +185,16 @@ src/
       admin/login/             合言葉ログイン
       admin/phase/             フェーズ進行
       admin/question/          問題CRUD
+      admin/seed/              仮問題を一括投入
       game/current-question/   フェーズ別の出題データ取得
-  components/{ParchmentFrame,RankIcon}.tsx
-  lib/{supabase,supabaseAdmin,ranks,phases,auth}.ts
+  components/{ParchmentFrame,RankIcon,Timer,ScreenshotButton}.tsx
+  lib/{firebase,firebaseAdmin,ranks,phases,auth}.ts
   types/game.ts
 public/ranks/{1..5}.svg
-supabase/
-  migrations/001_init.sql
-  seed.sql
+firebase/
+  firestore.rules
 docs/
-  SUPABASE_SETUP.md
+  FIREBASE_SETUP.md
   VERCEL_SETUP.md
 ```
 
@@ -202,13 +202,13 @@ docs/
 
 ## 💰 費用
 
-Vercel Hobby + Supabase Free = **無料** で運用可能（結婚式一回分なら余裕の範囲内）。
+Vercel Hobby + Firebase Spark = **無料** で運用可能（結婚式一回分なら余裕の範囲内）。
 
 ---
 
 ## ⚠️ 運用上の注意
 
-- `SUPABASE_SERVICE_ROLE_KEY` は**絶対に公開しない**（GitHubにも絶対にコミットしない）
+- `FIREBASE_SERVICE_ACCOUNT_KEY`（サービスアカウントJSON）は**絶対に公開しない**（GitHubにも絶対にコミットしない）
 - 本番運用前に必ずリハーサルする。参加者数分のスマホで負荷テストも推奨
 - 会場 Wi-Fi の回線品質次第でRealtime遅延が出る。有線LANの司会者PCを基準にする
 - 当日は `/admin/console` と `/screen` のタブを開きっぱなしにしておく

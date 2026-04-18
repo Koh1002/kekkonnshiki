@@ -2,7 +2,7 @@
 
 Vercel は Next.js の制作元が運営するホスティングサービス。このアプリを **無料** で世界中に公開できます。作業は **10〜15分**。
 
-前提：[Supabase のセットアップ](./SUPABASE_SETUP.md) が完了し、3つの環境変数をメモ済みであること。
+前提：[Firebase のセットアップ](./FIREBASE_SETUP.md) が完了し、Web 用の設定値とサービスアカウント JSON を取得済みであること。
 
 ---
 
@@ -38,17 +38,21 @@ Vercel は Next.js の制作元が運営するホスティングサービス。�
 
 ## 3. 環境変数の設定 ⭐最重要⭐
 
-同じ画面の **"Environment Variables"** セクションを開き、以下7つをすべて登録します。
+同じ画面の **"Environment Variables"** セクションを開き、以下9つをすべて登録します。
 
-| Name | Value | 例 |
+| Name | Value | 取得元 |
 |---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase の Project URL | `https://abcdxyz.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase の anon public | `eyJhbGciOi...`（長い文字列） |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase の service_role | `eyJhbGciOi...`（別の長い文字列） |
-| `ADMIN_PASSWORD` | 自分で決める管理者パスワード | `wedding-0925-secret` など |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Firebase `firebaseConfig.apiKey` | FIREBASE_SETUP §3 |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Firebase `firebaseConfig.authDomain` | 同上 |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Firebase `firebaseConfig.projectId` | 同上 |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | Firebase `firebaseConfig.appId` | 同上 |
+| `FIREBASE_SERVICE_ACCOUNT_KEY` | サービスアカウント JSON を **1行化** したもの | FIREBASE_SETUP §4 |
+| `ADMIN_PASSWORD` | 自分で決める管理者パスワード | 任意（例 `wedding-0925-secret`） |
 | `ADMIN_COOKIE_SECRET` | 32文字以上のランダム文字列 | 下記コマンドで生成 |
-| `ADMIN_ACCOUNT_NAME` | 司会用アカウント名（たまたま当たらない名前） | `master-9gkq3z-wedding` |
-| `SCREEN_ACCOUNT_NAME` | 会場スクリーン用アカウント名 | `screen-7hf2p1-wedding` |
+| `ADMIN_ACCOUNT_NAME` | 司会用アカウント名（たまたま当たらない名前） | 任意（例 `master-9gkq3z-wedding`） |
+| `SCREEN_ACCOUNT_NAME` | 会場スクリーン用アカウント名 | 任意（例 `screen-7hf2p1-wedding`） |
+
+> 💡 `FIREBASE_SERVICE_ACCOUNT_KEY` は長い JSON ですが、Vercel の Value 欄にそのまま1行で貼り付けて問題ありません。改行が入らないよう注意。
 
 ### ロール分岐について
 
@@ -179,17 +183,17 @@ openssl rand -hex 32
 | 症状 | 対処 |
 |---|---|
 | `/admin` でログインできない | Vercel の `ADMIN_PASSWORD` と `ADMIN_COOKIE_SECRET` を再確認し **Redeploy** |
-| スクリーンに参加者が表示されない | Supabase **Database → Replication** の設定確認 |
+| スクリーンに参加者が表示されない | Firestore のセキュリティルールが正しく公開されているか確認 |
 | QRコードを読んでも `localhost` に飛ぶ | `NEXT_PUBLIC_APP_URL` が本番URLになっているか確認、未反映なら Redeploy |
-| 回答したのに反映されない | ブラウザのコンソールを開いて赤いエラーを確認。`service_role` 未設定が多い |
-| 画像が表示されない | Supabase Storage バケットが **Public** になっているか確認 |
+| 回答したのに反映されない | ブラウザのコンソールを開いて赤いエラーを確認。`FIREBASE_SERVICE_ACCOUNT_KEY` 未設定 or JSON壊れが多い |
+| 画像が表示されない | Firebase Storage のセキュリティルールで `allow read: if true` にしているか確認 |
 
 ---
 
 ## 11. 費用について
 
 - **Vercel Hobby プラン**：無料。100 GB帯域/月まで。結婚式余興では全く問題なし
-- **Supabase Free プラン**：無料。DB 500MB、月間50,000人のアクティブユーザーまで。余興では全く問題なし
+- **Firebase Spark プラン**：無料。Firestore 1 GB / 50,000 reads・20,000 writes・20,000 deletes 毎日、Storage 5GB。余興では全く問題なし
 - 合計：**ゼロ円** で運用可能
 
 ---

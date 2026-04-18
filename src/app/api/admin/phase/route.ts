@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAdmin } from "@/lib/auth";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { adminDb, ensureGameState } from "@/lib/firebaseAdmin";
 import { clampRank } from "@/lib/ranks";
 
 export const runtime = "nodejs";
@@ -17,49 +17,72 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "actionが必要です" }, { status: 400 });
   }
 
-  const db = supabaseAdmin();
-
-  // 現状取得
-  const { data: state, error: sErr } = await db
-    .from("game_state")
-    .select("phase, current_question_id")
-    .eq("id", 1)
-    .single();
-  if (sErr || !state) {
+  const db = adminDb();
+  const stateRef = await ensureGameState();
+  const stateSnap = await stateRef.get();
+  const state = stateSnap.data();
+  if (!state) {
     return NextResponse.json({ error: "ゲーム状態取得失敗" }, { status: 500 });
   }
 
   async function firstActiveQuestion() {
-    const { data } = await db
-      .from("questions")
-      .select("id, order_index")
-      .eq("is_active", true)
-      .order("order_index", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-    return data;
+    // composite index を要求しないよう is_active フィルタは client-side で
+    const snap = await db
+      .collection("questions")
+      .orderBy("order_index", "asc")
+      .get();
+    const active = snap.docs.find((d) => d.data().is_active === true);
+    return active ? { id: active.id, order_index: active.data().order_index as number } : null;
   }
 
   async function nextActiveQuestion(currentOrder: number) {
-    const { data } = await db
-      .from("questions")
-      .select("id, order_index")
-      .eq("is_active", true)
-      .gt("order_index", currentOrder)
-      .order("order_index", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-    return data;
+    const snap = await db
+      .collection("questions")
+      .orderBy("order_index", "asc")
+      .get();
+    const next = snap.docs.find(
+      (d) => d.data().is_active === true && (d.data().order_index as number) > currentOrder
+    );
+    return next ? { id: next.id, order_index: next.data().order_index as number } : null;
   }
 
   async function currentQuestionOrder(): Promise<number | null> {
     if (!state?.current_question_id) return null;
-    const { data } = await db
-      .from("questions")
-      .select("order_index")
-      .eq("id", state.current_question_id)
-      .maybeSingle();
-    return data?.order_index ?? null;
+    const q = await db.collection("questions").doc(state.current_question_id).get();
+    return (q.data()?.order_index as number) ?? null;
+  }
+
+  async function deleteAllInCollection(name: string) {
+    const snap = await db.collection(name).get();
+    if (snap.empty) return;
+    // 500 件ごとに分割 commit
+    let batch = db.batch();
+    let count = 0;
+    for (const doc of snap.docs) {
+      batch.delete(doc.ref);
+      count++;
+      if (count % 450 === 0) {
+        await batch.commit();
+        batch = db.batch();
+      }
+    }
+    await batch.commit();
+  }
+
+  async function resetAllParticipants() {
+    const snap = await db.collection("participants").get();
+    if (snap.empty) return;
+    let batch = db.batch();
+    let count = 0;
+    for (const doc of snap.docs) {
+      batch.update(doc.ref, { rank_level: 3, correct_count: 0 });
+      count++;
+      if (count % 450 === 0) {
+        await batch.commit();
+        batch = db.batch();
+      }
+    }
+    await batch.commit();
   }
 
   switch (action) {
@@ -77,24 +100,15 @@ export async function POST(req: Request) {
           { status: 409 }
         );
       }
-      // 参加者リセット & 回答クリア
-      await db
-        .from("participants")
-        .update({ rank_level: 3, correct_count: 0 })
-        .not("id", "is", null);
-      await db.from("answers").delete().not("id", "is", null);
-
-      await db
-        .from("game_state")
-        .update({
-          phase: "QUESTION",
-          current_question_id: first.id,
-          revealed_correct_option: null,
-          revealed_commentary: null,
-          question_started_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", 1);
+      await Promise.all([resetAllParticipants(), deleteAllInCollection("answers")]);
+      await stateRef.update({
+        phase: "QUESTION",
+        current_question_id: first.id,
+        revealed_correct_option: null,
+        revealed_commentary: null,
+        question_started_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
       return NextResponse.json({ ok: true });
     }
 
@@ -105,10 +119,10 @@ export async function POST(req: Request) {
           { status: 409 }
         );
       }
-      await db
-        .from("game_state")
-        .update({ phase: "LOCKED", updated_at: new Date().toISOString() })
-        .eq("id", 1);
+      await stateRef.update({
+        phase: "LOCKED",
+        updated_at: new Date().toISOString(),
+      });
       return NextResponse.json({ ok: true });
     }
 
@@ -125,37 +139,36 @@ export async function POST(req: Request) {
           { status: 409 }
         );
       }
-      const { data: q } = await db
-        .from("questions")
-        .select("correct_option, commentary")
-        .eq("id", state.current_question_id)
-        .single();
+      const qSnap = await db.collection("questions").doc(state.current_question_id).get();
+      const q = qSnap.data();
       if (!q) {
         return NextResponse.json({ error: "問題が見つかりません" }, { status: 500 });
       }
-      // 回答の is_correct を計算
-      const { data: ans } = await db
-        .from("answers")
-        .select("id, selected_option")
-        .eq("question_id", state.current_question_id);
-      if (ans && ans.length > 0) {
-        const updates = ans.map((a) =>
-          db
-            .from("answers")
-            .update({ is_correct: a.selected_option === q.correct_option })
-            .eq("id", a.id)
-        );
-        await Promise.all(updates);
+      // 該当問題の回答 is_correct を再計算
+      const ansSnap = await db
+        .collection("answers")
+        .where("question_id", "==", state.current_question_id)
+        .get();
+      if (!ansSnap.empty) {
+        let batch = db.batch();
+        let count = 0;
+        for (const doc of ansSnap.docs) {
+          const is_correct = doc.data().selected_option === q.correct_option;
+          batch.update(doc.ref, { is_correct });
+          count++;
+          if (count % 450 === 0) {
+            await batch.commit();
+            batch = db.batch();
+          }
+        }
+        await batch.commit();
       }
-      await db
-        .from("game_state")
-        .update({
-          phase: "REVEAL",
-          revealed_correct_option: q.correct_option,
-          revealed_commentary: q.commentary,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", 1);
+      await stateRef.update({
+        phase: "REVEAL",
+        revealed_correct_option: q.correct_option,
+        revealed_commentary: q.commentary ?? null,
+        updated_at: new Date().toISOString(),
+      });
       return NextResponse.json({ ok: true });
     }
 
@@ -172,30 +185,39 @@ export async function POST(req: Request) {
           { status: 409 }
         );
       }
-      // 全参加者の現在ランクとこの問題の回答を取得
-      const [{ data: parts }, { data: ans }] = await Promise.all([
-        db.from("participants").select("id, rank_level, correct_count"),
+      const [partsSnap, ansSnap] = await Promise.all([
+        db.collection("participants").get(),
         db
-          .from("answers")
-          .select("participant_id, is_correct")
-          .eq("question_id", state.current_question_id),
+          .collection("answers")
+          .where("question_id", "==", state.current_question_id)
+          .get(),
       ]);
-      const ansMap = new Map<string, boolean>();
-      (ans ?? []).forEach((a) => ansMap.set(a.participant_id, a.is_correct));
-      const updates = (parts ?? []).map((p) => {
-        const correct = ansMap.get(p.id) === true;
-        const newRank = clampRank(p.rank_level + (correct ? 1 : -1));
-        const newCount = p.correct_count + (correct ? 1 : 0);
-        return db
-          .from("participants")
-          .update({ rank_level: newRank, correct_count: newCount })
-          .eq("id", p.id);
+      const correctMap = new Map<string, boolean>();
+      ansSnap.docs.forEach((d) => {
+        const data = d.data();
+        correctMap.set(data.participant_id, data.is_correct === true);
       });
-      await Promise.all(updates);
-      await db
-        .from("game_state")
-        .update({ phase: "RANK_UPDATE", updated_at: new Date().toISOString() })
-        .eq("id", 1);
+
+      let batch = db.batch();
+      let count = 0;
+      for (const doc of partsSnap.docs) {
+        const p = doc.data();
+        const correct = correctMap.get(doc.id) === true;
+        const newRank = clampRank((p.rank_level as number) + (correct ? 1 : -1));
+        const newCount = (p.correct_count as number) + (correct ? 1 : 0);
+        batch.update(doc.ref, { rank_level: newRank, correct_count: newCount });
+        count++;
+        if (count % 450 === 0) {
+          await batch.commit();
+          batch = db.batch();
+        }
+      }
+      await batch.commit();
+
+      await stateRef.update({
+        phase: "RANK_UPDATE",
+        updated_at: new Date().toISOString(),
+      });
       return NextResponse.json({ ok: true });
     }
 
@@ -209,49 +231,36 @@ export async function POST(req: Request) {
       const currentOrder = await currentQuestionOrder();
       const next = currentOrder !== null ? await nextActiveQuestion(currentOrder) : null;
       if (next) {
-        await db
-          .from("game_state")
-          .update({
-            phase: "QUESTION",
-            current_question_id: next.id,
-            revealed_correct_option: null,
-            revealed_commentary: null,
-            question_started_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", 1);
+        await stateRef.update({
+          phase: "QUESTION",
+          current_question_id: next.id,
+          revealed_correct_option: null,
+          revealed_commentary: null,
+          question_started_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
       } else {
-        await db
-          .from("game_state")
-          .update({
-            phase: "FINAL",
-            revealed_correct_option: null,
-            revealed_commentary: null,
-            question_started_at: null,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", 1);
+        await stateRef.update({
+          phase: "FINAL",
+          revealed_correct_option: null,
+          revealed_commentary: null,
+          question_started_at: null,
+          updated_at: new Date().toISOString(),
+        });
       }
       return NextResponse.json({ ok: true });
     }
 
     case "reset": {
-      await db.from("answers").delete().not("id", "is", null);
-      await db
-        .from("participants")
-        .update({ rank_level: 3, correct_count: 0 })
-        .not("id", "is", null);
-      await db
-        .from("game_state")
-        .update({
-          phase: "LOBBY",
-          current_question_id: null,
-          revealed_correct_option: null,
-          revealed_commentary: null,
-          question_started_at: null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", 1);
+      await Promise.all([resetAllParticipants(), deleteAllInCollection("answers")]);
+      await stateRef.update({
+        phase: "LOBBY",
+        current_question_id: null,
+        revealed_correct_option: null,
+        revealed_commentary: null,
+        question_started_at: null,
+        updated_at: new Date().toISOString(),
+      });
       return NextResponse.json({ ok: true });
     }
   }

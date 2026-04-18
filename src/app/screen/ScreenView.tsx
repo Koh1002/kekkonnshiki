@@ -2,7 +2,8 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { supabase } from "@/lib/supabase";
+import { collection, doc, onSnapshot, orderBy, query } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import type { Answer, GameState, Participant, PublicQuestion } from "@/types/game";
 import { RANK_LATIN, RANK_NAMES, rankIconPath } from "@/lib/ranks";
 import { Timer } from "@/components/Timer";
@@ -15,46 +16,27 @@ export function ScreenView() {
   const [question, setQuestion] = useState<PublicQuestion | null>(null);
 
   useEffect(() => {
-    (async () => {
-      const [{ data: gs }, { data: ps }, { data: ans }] = await Promise.all([
-        supabase.from("game_state").select("*").eq("id", 1).single(),
-        supabase.from("participants").select("*").order("joined_at", { ascending: true }),
-        supabase.from("answers").select("*"),
-      ]);
-      if (gs) setState(gs as GameState);
-      if (ps) setParticipants(ps as Participant[]);
-      if (ans) setAnswers(ans as Answer[]);
-    })();
-
-    const ch = supabase
-      .channel("screen")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "game_state", filter: "id=eq.1" },
-        (payload) => payload.new && setState(payload.new as GameState)
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "participants" },
-        async () => {
-          const { data } = await supabase
-            .from("participants")
-            .select("*")
-            .order("joined_at", { ascending: true });
-          if (data) setParticipants(data as Participant[]);
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "answers" },
-        async () => {
-          const { data } = await supabase.from("answers").select("*");
-          if (data) setAnswers(data as Answer[]);
-        }
-      )
-      .subscribe();
+    const unsubState = onSnapshot(doc(db(), "gameState", "current"), (snap) => {
+      if (!snap.exists()) return;
+      setState(snap.data() as GameState);
+    });
+    const unsubParts = onSnapshot(
+      query(collection(db(), "participants"), orderBy("joined_at", "asc")),
+      (snap) => {
+        setParticipants(
+          snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Participant, "id">) }))
+        );
+      }
+    );
+    const unsubAns = onSnapshot(collection(db(), "answers"), (snap) => {
+      setAnswers(
+        snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Answer, "id">) }))
+      );
+    });
     return () => {
-      supabase.removeChannel(ch);
+      unsubState();
+      unsubParts();
+      unsubAns();
     };
   }, []);
 

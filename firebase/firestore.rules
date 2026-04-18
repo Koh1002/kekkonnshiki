@@ -1,0 +1,25 @@
+rules_version = '2';
+
+// 書き込みはすべて Admin SDK（API Routes）経由。クライアントからの直接書込を禁止。
+// 読み取りは game_state / participants / answers のみ許可（Realtime 購読用）。
+// questions は correct_option が含まれるため、クライアント直読を不許可にし
+// API /api/game/current-question 経由で配信する。
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /gameState/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /participants/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /answers/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /questions/{doc} {
+      allow read, write: if false;
+    }
+  }
+}

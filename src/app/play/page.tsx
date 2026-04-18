@@ -2,7 +2,8 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import type { Answer, GameState, Participant, PublicQuestion } from "@/types/game";
 import { RANK_LATIN, RANK_NAMES, RANK_TAGLINES, RANK_THEMES, rankIconPath } from "@/lib/ranks";
 import { ParchmentFrame } from "@/components/ParchmentFrame";
@@ -36,71 +37,50 @@ export default function PlayPage() {
   // ゲーム状態 & 自分の参加者情報 の購読
   useEffect(() => {
     if (!pid) return;
-    let cancelled = false;
 
-    (async () => {
-      const [{ data: gs }, { data: p }] = await Promise.all([
-        supabase.from("game_state").select("*").eq("id", 1).single(),
-        supabase.from("participants").select("*").eq("id", pid).single(),
-      ]);
-      if (cancelled) return;
-      if (gs) setState(gs as GameState);
-      if (p) {
-        setMe(p as Participant);
-        prevRankRef.current = (p as Participant).rank_level;
-      } else {
-        // 参加者レコードが消えている（リセット）→ 再登録
+    const unsubState = onSnapshot(doc(db(), "gameState", "current"), (snap) => {
+      if (!snap.exists()) return;
+      setState(snap.data() as GameState);
+    });
+
+    const unsubMe = onSnapshot(doc(db(), "participants", pid), (snap) => {
+      if (!snap.exists()) {
+        // リセットで自分のレコードが消えた → 再登録へ
         localStorage.removeItem("participant_id");
         router.replace("/join");
+        return;
       }
-    })();
-
-    const ch = supabase
-      .channel(`play:${pid}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "game_state", filter: "id=eq.1" },
-        (payload) => {
-          if (payload.new) setState(payload.new as GameState);
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "participants", filter: `id=eq.${pid}` },
-        (payload) => {
-          const np = payload.new as Participant | undefined;
-          if (!np) return;
-          // 格変動フェーズ検知のため前値を保持
-          setMe((prev) => {
-            if (prev) prevRankRef.current = prev.rank_level;
-            return np;
-          });
-        }
-      )
-      .subscribe();
+      const data = snap.data() as Omit<Participant, "id">;
+      const np: Participant = { id: snap.id, ...data };
+      setMe((prev) => {
+        if (prev) prevRankRef.current = prev.rank_level;
+        else prevRankRef.current = np.rank_level;
+        return np;
+      });
+    });
 
     return () => {
-      cancelled = true;
-      supabase.removeChannel(ch);
+      unsubState();
+      unsubMe();
     };
   }, [pid, router]);
 
-  // 自分の回答を取得（フェーズや出題IDが変わるたび）
+  // 自分の回答を取得（出題IDが変わるたび購読しなおし）
   useEffect(() => {
     if (!pid || !state?.current_question_id) {
       setMyAnswer(null);
       return;
     }
-    (async () => {
-      const { data } = await supabase
-        .from("answers")
-        .select("*")
-        .eq("participant_id", pid)
-        .eq("question_id", state.current_question_id!)
-        .maybeSingle();
-      setMyAnswer((data as Answer) ?? null);
-    })();
-  }, [pid, state?.current_question_id, state?.phase]);
+    const answerId = `${pid}_${state.current_question_id}`;
+    const unsub = onSnapshot(doc(db(), "answers", answerId), (snap) => {
+      if (!snap.exists()) {
+        setMyAnswer(null);
+        return;
+      }
+      setMyAnswer({ id: snap.id, ...(snap.data() as Omit<Answer, "id">) });
+    });
+    return () => unsub();
+  }, [pid, state?.current_question_id]);
 
   // 出題データ取得（フェーズ or 問題IDが変わるたび）
   useEffect(() => {

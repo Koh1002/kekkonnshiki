@@ -1,25 +1,24 @@
 import { NextResponse } from "next/server";
 import { isAdmin } from "@/lib/auth";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { adminDb } from "@/lib/firebaseAdmin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// 全問題を返す（管理者のみ正解・解説含めて取得可）
-export async function GET() {
-  if (!isAdmin()) return NextResponse.json({ error: "認証必要" }, { status: 401 });
-  const db = supabaseAdmin();
-  const { data, error } = await db
-    .from("questions")
-    .select("*")
-    .order("order_index", { ascending: true });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data ?? []);
+function unauth() {
+  return NextResponse.json({ error: "認証必要" }, { status: 401 });
 }
 
-// 新しい問題を追加
+export async function GET() {
+  if (!isAdmin()) return unauth();
+  const db = adminDb();
+  const snap = await db.collection("questions").orderBy("order_index", "asc").get();
+  const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return NextResponse.json(data);
+}
+
 export async function POST(req: Request) {
-  if (!isAdmin()) return NextResponse.json({ error: "認証必要" }, { status: 401 });
+  if (!isAdmin()) return unauth();
   const body = (await req.json()) as {
     title?: string;
     description?: string | null;
@@ -47,39 +46,35 @@ export async function POST(req: Request) {
     typeof body.timer_seconds === "number" && body.timer_seconds > 0
       ? Math.min(300, Math.round(body.timer_seconds))
       : 30;
-  const db = supabaseAdmin();
-  // 末尾に追加するため最大 order_index + 1
-  const { data: last } = await db
-    .from("questions")
-    .select("order_index")
-    .order("order_index", { ascending: false })
+
+  const db = adminDb();
+  const snap = await db
+    .collection("questions")
+    .orderBy("order_index", "desc")
     .limit(1)
-    .maybeSingle();
-  const nextOrder = (last?.order_index ?? 0) + 1;
-  const { data, error } = await db
-    .from("questions")
-    .insert({
-      title: body.title,
-      description: body.description ?? null,
-      option_a_label: body.option_a_label,
-      option_a_image: body.option_a_image ?? null,
-      option_b_label: body.option_b_label,
-      option_b_image: body.option_b_image ?? null,
-      correct_option: body.correct_option,
-      commentary: body.commentary ?? null,
-      order_index: nextOrder,
-      is_active: body.is_active ?? true,
-      timer_seconds: timer,
-    })
-    .select()
-    .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+    .get();
+  const lastIdx = snap.empty ? 0 : (snap.docs[0].data().order_index as number) ?? 0;
+
+  const doc = await db.collection("questions").add({
+    title: body.title,
+    description: body.description ?? null,
+    option_a_label: body.option_a_label,
+    option_a_image: body.option_a_image ?? null,
+    option_b_label: body.option_b_label,
+    option_b_image: body.option_b_image ?? null,
+    correct_option: body.correct_option,
+    commentary: body.commentary ?? null,
+    order_index: lastIdx + 1,
+    is_active: body.is_active ?? true,
+    timer_seconds: timer,
+    created_at: new Date().toISOString(),
+  });
+  const created = await doc.get();
+  return NextResponse.json({ id: created.id, ...created.data() });
 }
 
-// 有効/無効の切替 or 順序の変更 or 内容の編集
 export async function PATCH(req: Request) {
-  if (!isAdmin()) return NextResponse.json({ error: "認証必要" }, { status: 401 });
+  if (!isAdmin()) return unauth();
   const body = (await req.json()) as {
     id: string;
     is_active?: boolean;
@@ -113,19 +108,17 @@ export async function PATCH(req: Request) {
   ] as const) {
     if (body[k] !== undefined) patch[k] = body[k];
   }
-  const db = supabaseAdmin();
-  const { error } = await db.from("questions").update(patch).eq("id", body.id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  const db = adminDb();
+  await db.collection("questions").doc(body.id).update(patch);
   return NextResponse.json({ ok: true });
 }
 
 export async function DELETE(req: Request) {
-  if (!isAdmin()) return NextResponse.json({ error: "認証必要" }, { status: 401 });
+  if (!isAdmin()) return unauth();
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id必須" }, { status: 400 });
-  const db = supabaseAdmin();
-  const { error } = await db.from("questions").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  const db = adminDb();
+  await db.collection("questions").doc(id).delete();
   return NextResponse.json({ ok: true });
 }
