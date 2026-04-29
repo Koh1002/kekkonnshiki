@@ -176,7 +176,7 @@ export function AdminConsole() {
 
   if (!state) {
     return (
-      <main className="min-h-screen parchment-dark flex items-center justify-center text-amber-200">
+      <main className="min-h-screen velvet flex items-center justify-center text-goldleaf-200">
         読み込み中…
       </main>
     );
@@ -214,41 +214,41 @@ export function AdminConsole() {
   actions.push({ key: "reset", label: "ゲームをリセット", danger: true });
 
   return (
-    <main className="min-h-screen parchment-dark text-amber-100 p-4 sm:p-8">
+    <main className="min-h-screen velvet text-goldleaf-100 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         <header className="flex items-center justify-between gap-3">
           <div>
-            <div className="font-display tracking-[0.3em] text-amber-300 text-xs">
-              CONSOLE
+            <div className="font-display tracking-[0.3em] text-goldleaf-300 text-xs">
+              ◆ MC CONSOLE ◆
             </div>
-            <h1 className="font-display text-amber-200 text-2xl sm:text-3xl">
-              司会進行 コンソール
+            <h1 className="title-block text-gold text-2xl sm:text-3xl">
+              一般人格付けチェック・進行卓
             </h1>
           </div>
           <button
             onClick={logout}
-            className="text-amber-400/70 hover:text-amber-300 text-sm underline underline-offset-4"
+            className="text-goldleaf-400/70 hover:text-goldleaf-300 text-sm underline underline-offset-4"
           >
             ログアウト
           </button>
         </header>
 
         {/* 現在のフェーズ */}
-        <section className="rounded-lg border border-amber-500/40 bg-black/30 p-5">
+        <section className="rounded-lg border border-goldleaf-500/40 bg-black/30 p-5">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <div className="text-amber-300/80 text-xs tracking-widest">現在のフェーズ</div>
-              <div className="font-display text-amber-200 text-3xl">
+              <div className="text-goldleaf-300/80 text-xs tracking-widest">現在のフェーズ</div>
+              <div className="font-display text-goldleaf-200 text-3xl">
                 {PHASE_LABEL[phase]}
               </div>
               {currentQuestion && (
-                <div className="text-amber-100/80 text-sm mt-1">
+                <div className="text-goldleaf-100/80 text-sm mt-1">
                   出題中：第{currentQuestion.order_index}問「{currentQuestion.title}」
                   （正解 {currentQuestion.correct_option}／制限 {currentQuestion.timer_seconds}秒）
                 </div>
               )}
               {phase === "QUESTION" || phase === "LOCKED" ? (
-                <div className="text-amber-100/80 text-sm">
+                <div className="text-goldleaf-100/80 text-sm">
                   回答済み {currentAnswers.length}／{participants.length}名
                 </div>
               ) : null}
@@ -283,10 +283,10 @@ export function AdminConsole() {
                 }
                 className={`px-5 py-3 rounded-md border-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed
                   ${a.primary
-                    ? "border-amber-400 bg-amber-500/20 hover:bg-amber-500/30 text-amber-100 font-bold"
+                    ? "border-goldleaf-400 bg-goldleaf-500/20 hover:bg-goldleaf-500/30 text-goldleaf-100 font-bold"
                     : a.danger
                       ? "border-red-500 bg-red-900/30 hover:bg-red-900/50 text-red-100"
-                      : "border-amber-500/50 bg-black/30 hover:bg-amber-500/10 text-amber-100"}
+                      : "border-goldleaf-500/50 bg-black/30 hover:bg-goldleaf-500/10 text-goldleaf-100"}
                 `}
               >
                 {a.label}
@@ -296,8 +296,8 @@ export function AdminConsole() {
         </section>
 
         {/* 参加者一覧 */}
-        <section className="rounded-lg border border-amber-500/40 bg-black/30 p-5">
-          <h2 className="font-display text-amber-200 text-lg mb-3">
+        <section className="rounded-lg border border-goldleaf-500/40 bg-black/30 p-5">
+          <h2 className="font-display text-goldleaf-200 text-lg mb-3">
             参加者（{participants.length}名）
           </h2>
           <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -306,7 +306,7 @@ export function AdminConsole() {
               return (
                 <div
                   key={p.id}
-                  className="flex items-center gap-2 border border-amber-500/20 bg-black/40 rounded p-2"
+                  className="flex items-center gap-2 border border-goldleaf-500/20 bg-black/40 rounded p-2"
                 >
                   <img
                     src={rankIconPath(p.rank_level)}
@@ -314,8 +314,8 @@ export function AdminConsole() {
                     className="w-9 h-9 rounded-full"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="truncate text-amber-100">{p.display_name}</div>
-                    <div className="text-xs text-amber-300">
+                    <div className="truncate text-goldleaf-100">{p.display_name}</div>
+                    <div className="text-xs text-goldleaf-300">
                       {RANK_NAMES[p.rank_level]}（正解{p.correct_count}）
                     </div>
                   </div>
@@ -334,46 +334,46 @@ export function AdminConsole() {
               );
             })}
             {participants.length === 0 && (
-              <div className="text-amber-200/70 text-sm">まだ参加者がいません。</div>
+              <div className="text-goldleaf-200/70 text-sm">まだ参加者がいません。</div>
             )}
           </div>
         </section>
 
         {/* 問題管理 */}
-        <section className="rounded-lg border border-amber-500/40 bg-black/30 p-5">
-          <h2 className="font-display text-amber-200 text-lg mb-3">
+        <section className="rounded-lg border border-goldleaf-500/40 bg-black/30 p-5">
+          <h2 className="font-display text-goldleaf-200 text-lg mb-3">
             問題管理（最大5問まで出題できます）
           </h2>
-          <div className="text-amber-300/80 text-xs mb-3">
+          <div className="text-goldleaf-300/80 text-xs mb-3">
             チェックを入れた問題が ON。▲▼ で順序を入れ替え。
           </div>
           <div className="space-y-2">
             {questions.map((q) => (
               <div
                 key={q.id}
-                className="flex items-start gap-3 border border-amber-500/20 bg-black/30 rounded p-3"
+                className="flex items-start gap-3 border border-goldleaf-500/20 bg-black/30 rounded p-3"
               >
                 <label className="flex items-center gap-2 mt-1">
                   <input
                     type="checkbox"
                     checked={q.is_active}
                     onChange={() => toggleActive(q)}
-                    className="w-5 h-5 accent-amber-400"
+                    className="w-5 h-5 accent-goldleaf-400"
                   />
-                  <span className="text-amber-200 text-sm">有効</span>
+                  <span className="text-goldleaf-200 text-sm">有効</span>
                 </label>
                 <div className="flex-1 min-w-0">
-                  <div className="text-amber-100 font-bold">
+                  <div className="text-goldleaf-100 font-bold">
                     第{q.order_index}問：{q.title}
                   </div>
-                  <div className="text-amber-200/80 text-sm">
+                  <div className="text-goldleaf-200/80 text-sm">
                     Ａ：{q.option_a_label} ／ Ｂ：{q.option_b_label}
                   </div>
-                  <div className="text-amber-300 text-xs">
+                  <div className="text-goldleaf-300 text-xs">
                     正解：{q.correct_option}
                     {q.commentary ? `｜解説：${q.commentary}` : ""}
                   </div>
-                  <label className="mt-2 inline-flex items-center gap-2 text-amber-200 text-xs">
+                  <label className="mt-2 inline-flex items-center gap-2 text-goldleaf-200 text-xs">
                     制限時間
                     <input
                       type="number"
@@ -390,7 +390,7 @@ export function AdminConsole() {
                         });
                         await loadQuestions();
                       }}
-                      className="w-20 bg-black/40 border border-amber-500/40 rounded px-2 py-1 text-amber-100"
+                      className="w-20 bg-black/40 border border-goldleaf-500/40 rounded px-2 py-1 text-goldleaf-100"
                     />
                     秒
                   </label>
@@ -398,13 +398,13 @@ export function AdminConsole() {
                 <div className="flex flex-col gap-1">
                   <button
                     onClick={() => move(q, -1)}
-                    className="px-2 py-1 border border-amber-500/40 rounded text-amber-200 hover:bg-amber-500/10"
+                    className="px-2 py-1 border border-goldleaf-500/40 rounded text-goldleaf-200 hover:bg-goldleaf-500/10"
                   >
                     ▲
                   </button>
                   <button
                     onClick={() => move(q, 1)}
-                    className="px-2 py-1 border border-amber-500/40 rounded text-amber-200 hover:bg-amber-500/10"
+                    className="px-2 py-1 border border-goldleaf-500/40 rounded text-goldleaf-200 hover:bg-goldleaf-500/10"
                   >
                     ▼
                   </button>
@@ -418,7 +418,7 @@ export function AdminConsole() {
               </div>
             ))}
             {questions.length === 0 && (
-              <div className="text-amber-200/80 text-sm space-y-2">
+              <div className="text-goldleaf-200/80 text-sm space-y-2">
                 <p>問題が登録されていません。下のフォームから追加するか、仮問題を一括投入できます。</p>
                 <button
                   onClick={async () => {
@@ -431,7 +431,7 @@ export function AdminConsole() {
                     }
                     await loadQuestions();
                   }}
-                  className="px-4 py-2 rounded border border-amber-500/60 text-amber-200 hover:bg-amber-500/10"
+                  className="px-4 py-2 rounded border border-goldleaf-500/60 text-goldleaf-200 hover:bg-goldleaf-500/10"
                 >
                   仮問題5問を一括投入
                 </button>
@@ -443,15 +443,15 @@ export function AdminConsole() {
         </section>
 
         {/* 投影用リンク */}
-        <section className="rounded-lg border border-amber-500/40 bg-black/30 p-5">
-          <h2 className="font-display text-amber-200 text-lg mb-2">会場スクリーン</h2>
-          <p className="text-amber-100/80 text-sm mb-2">
+        <section className="rounded-lg border border-goldleaf-500/40 bg-black/30 p-5">
+          <h2 className="font-display text-goldleaf-200 text-lg mb-2">会場スクリーン</h2>
+          <p className="text-goldleaf-100/80 text-sm mb-2">
             プロジェクタに映す画面。フルスクリーンでお使いください。
           </p>
           <a
             href="/screen"
             target="_blank"
-            className="inline-block px-4 py-2 rounded border border-amber-500/60 text-amber-200 hover:bg-amber-500/10"
+            className="inline-block px-4 py-2 rounded border border-goldleaf-500/60 text-goldleaf-200 hover:bg-goldleaf-500/10"
           >
             /screen を新しいタブで開く
           </a>
@@ -519,7 +519,7 @@ function AddQuestionForm({ onCreated }: { onCreated: () => void | Promise<void> 
     return (
       <button
         onClick={() => setOpen(true)}
-        className="mt-4 px-4 py-2 rounded border border-amber-500/60 text-amber-200 hover:bg-amber-500/10"
+        className="mt-4 px-4 py-2 rounded border border-goldleaf-500/60 text-goldleaf-200 hover:bg-goldleaf-500/10"
       >
         ＋ 新しい問題を追加
       </button>
@@ -527,22 +527,22 @@ function AddQuestionForm({ onCreated }: { onCreated: () => void | Promise<void> 
   }
 
   const input =
-    "w-full rounded bg-black/40 border border-amber-500/50 text-amber-100 px-3 py-2 focus:outline-none focus:border-amber-300";
+    "w-full rounded bg-black/40 border border-goldleaf-500/50 text-goldleaf-100 px-3 py-2 focus:outline-none focus:border-goldleaf-300";
 
   return (
-    <form onSubmit={submit} className="mt-4 border border-amber-500/40 rounded-lg p-4 space-y-3">
+    <form onSubmit={submit} className="mt-4 border border-goldleaf-500/40 rounded-lg p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="font-display text-amber-200">新しい問題</h3>
+        <h3 className="font-display text-goldleaf-200">新しい問題</h3>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-amber-300 text-sm hover:underline"
+          className="text-goldleaf-300 text-sm hover:underline"
         >
           キャンセル
         </button>
       </div>
       <div>
-        <label className="text-amber-200 text-sm">タイトル（必須）</label>
+        <label className="text-goldleaf-200 text-sm">タイトル（必須）</label>
         <input
           className={input}
           value={title}
@@ -553,7 +553,7 @@ function AddQuestionForm({ onCreated }: { onCreated: () => void | Promise<void> 
         />
       </div>
       <div>
-        <label className="text-amber-200 text-sm">補足説明</label>
+        <label className="text-goldleaf-200 text-sm">補足説明</label>
         <input
           className={input}
           value={description}
@@ -563,14 +563,14 @@ function AddQuestionForm({ onCreated }: { onCreated: () => void | Promise<void> 
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-2">
-          <label className="text-amber-200 text-sm">Ａの説明（必須）</label>
+          <label className="text-goldleaf-200 text-sm">Ａの説明（必須）</label>
           <input
             className={input}
             value={aLabel}
             onChange={(e) => setALabel(e.target.value)}
             required
           />
-          <label className="text-amber-200 text-sm">Ａの画像URL（任意）</label>
+          <label className="text-goldleaf-200 text-sm">Ａの画像URL（任意）</label>
           <input
             className={input}
             value={aImage}
@@ -579,14 +579,14 @@ function AddQuestionForm({ onCreated }: { onCreated: () => void | Promise<void> 
           />
         </div>
         <div className="space-y-2">
-          <label className="text-amber-200 text-sm">Ｂの説明（必須）</label>
+          <label className="text-goldleaf-200 text-sm">Ｂの説明（必須）</label>
           <input
             className={input}
             value={bLabel}
             onChange={(e) => setBLabel(e.target.value)}
             required
           />
-          <label className="text-amber-200 text-sm">Ｂの画像URL（任意）</label>
+          <label className="text-goldleaf-200 text-sm">Ｂの画像URL（任意）</label>
           <input
             className={input}
             value={bImage}
@@ -596,30 +596,30 @@ function AddQuestionForm({ onCreated }: { onCreated: () => void | Promise<void> 
         </div>
       </div>
       <div>
-        <label className="text-amber-200 text-sm mr-4">正解</label>
-        <label className="text-amber-100 mr-4">
+        <label className="text-goldleaf-200 text-sm mr-4">正解</label>
+        <label className="text-goldleaf-100 mr-4">
           <input
             type="radio"
             name="correct"
             checked={correct === "A"}
             onChange={() => setCorrect("A")}
-            className="mr-1 accent-amber-400"
+            className="mr-1 accent-goldleaf-400"
           />
           Ａ
         </label>
-        <label className="text-amber-100">
+        <label className="text-goldleaf-100">
           <input
             type="radio"
             name="correct"
             checked={correct === "B"}
             onChange={() => setCorrect("B")}
-            className="mr-1 accent-amber-400"
+            className="mr-1 accent-goldleaf-400"
           />
           Ｂ
         </label>
       </div>
       <div>
-        <label className="text-amber-200 text-sm">解説（正解発表時に表示）</label>
+        <label className="text-goldleaf-200 text-sm">解説（正解発表時に表示）</label>
         <input
           className={input}
           value={commentary}
@@ -628,7 +628,7 @@ function AddQuestionForm({ onCreated }: { onCreated: () => void | Promise<void> 
         />
       </div>
       <div>
-        <label className="text-amber-200 text-sm">制限時間（秒）</label>
+        <label className="text-goldleaf-200 text-sm">制限時間（秒）</label>
         <input
           type="number"
           min={5}
@@ -649,7 +649,7 @@ function AddQuestionForm({ onCreated }: { onCreated: () => void | Promise<void> 
       <button
         type="submit"
         disabled={saving}
-        className="px-5 py-2 rounded border-2 border-amber-400 bg-amber-500/20 hover:bg-amber-500/30 text-amber-100 disabled:opacity-40"
+        className="px-5 py-2 rounded border-2 border-goldleaf-400 bg-goldleaf-500/20 hover:bg-goldleaf-500/30 text-goldleaf-100 disabled:opacity-40"
       >
         {saving ? "追加中…" : "この問題を追加する"}
       </button>

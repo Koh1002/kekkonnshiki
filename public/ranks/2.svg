@@ -1,42 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="三流貴族">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="三流">
   <defs>
     <radialGradient id="g2bg" cx="50%" cy="45%" r="60%">
-      <stop offset="0%" stop-color="#4a3518"/>
-      <stop offset="100%" stop-color="#1e1408"/>
+      <stop offset="0%" stop-color="#3d0c14"/>
+      <stop offset="100%" stop-color="#1a0408"/>
     </radialGradient>
-    <linearGradient id="g2wheat" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#e4c987"/>
-      <stop offset="100%" stop-color="#8a6a2e"/>
+    <linearGradient id="g2br" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d4af37"/>
+      <stop offset="100%" stop-color="#7a5a16"/>
     </linearGradient>
   </defs>
   <rect width="256" height="256" fill="url(#g2bg)"/>
-  <circle cx="128" cy="128" r="108" fill="none" stroke="url(#g2wheat)" stroke-width="3"/>
-  <circle cx="128" cy="128" r="98" fill="none" stroke="url(#g2wheat)" stroke-width="1" stroke-dasharray="2 4"/>
-  <!-- 麦穂中央 -->
-  <g stroke="#4a3518" stroke-width="1" fill="url(#g2wheat)">
-    <path d="M128 60 v130" stroke="url(#g2wheat)" stroke-width="3" fill="none"/>
-    <g>
-      <ellipse cx="128" cy="80" rx="6" ry="12"/>
-      <ellipse cx="118" cy="92" rx="5" ry="10"/>
-      <ellipse cx="138" cy="92" rx="5" ry="10"/>
-      <ellipse cx="116" cy="110" rx="5" ry="10"/>
-      <ellipse cx="140" cy="110" rx="5" ry="10"/>
-      <ellipse cx="114" cy="128" rx="5" ry="10"/>
-      <ellipse cx="142" cy="128" rx="5" ry="10"/>
-      <ellipse cx="112" cy="146" rx="5" ry="10"/>
-      <ellipse cx="144" cy="146" rx="5" ry="10"/>
-    </g>
+  <circle cx="128" cy="128" r="110" fill="none" stroke="url(#g2br)" stroke-width="2.5"/>
+  <circle cx="128" cy="128" r="100" fill="none" stroke="url(#g2br)" stroke-width="1" stroke-dasharray="2 4"/>
+  <!-- 簡素な紋章（麦穂と星） -->
+  <g stroke="#3a2810" stroke-width="1" fill="url(#g2br)">
+    <path d="M128 68 v110" stroke="url(#g2br)" stroke-width="3" fill="none"/>
+    <ellipse cx="128" cy="86" rx="6" ry="12"/>
+    <ellipse cx="118" cy="100" rx="5" ry="10"/>
+    <ellipse cx="138" cy="100" rx="5" ry="10"/>
+    <ellipse cx="116" cy="118" rx="5" ry="10"/>
+    <ellipse cx="140" cy="118" rx="5" ry="10"/>
+    <ellipse cx="114" cy="136" rx="5" ry="10"/>
+    <ellipse cx="142" cy="136" rx="5" ry="10"/>
   </g>
-  <!-- 麦 両脇 -->
-  <g fill="none" stroke="url(#g2wheat)" stroke-width="2.5" stroke-linecap="round">
-    <path d="M70 180 Q100 150 118 130"/>
-    <path d="M186 180 Q156 150 138 130"/>
-  </g>
-  <g fill="url(#g2wheat)">
-    <ellipse cx="82" cy="166" rx="3" ry="7" transform="rotate(-30 82 166)"/>
-    <ellipse cx="92" cy="156" rx="3" ry="7" transform="rotate(-30 92 156)"/>
-    <ellipse cx="174" cy="166" rx="3" ry="7" transform="rotate(30 174 166)"/>
-    <ellipse cx="164" cy="156" rx="3" ry="7" transform="rotate(30 164 156)"/>
-  </g>
-  <text x="128" y="232" text-anchor="middle" fill="#e4c987" font-family="'Cinzel', serif" font-size="18" letter-spacing="3">VASSALLUS</text>
+  <text x="128" y="220" text-anchor="middle" fill="url(#g2br)" font-family="'Noto Serif JP', serif" font-weight="900" font-size="32" letter-spacing="6">三流</text>
 </svg>

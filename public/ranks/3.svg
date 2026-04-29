@@ -1,33 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="二流貴族">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="普通の人">
   <defs>
     <radialGradient id="g3bg" cx="50%" cy="45%" r="60%">
-      <stop offset="0%" stop-color="#5a1a1a"/>
-      <stop offset="100%" stop-color="#200808"/>
+      <stop offset="0%" stop-color="#5a121e"/>
+      <stop offset="100%" stop-color="#1a0408"/>
     </radialGradient>
-    <linearGradient id="g3bronze" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#e8b673"/>
-      <stop offset="100%" stop-color="#8c5a1f"/>
+    <linearGradient id="g3gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0c63b"/>
+      <stop offset="100%" stop-color="#7a5a16"/>
     </linearGradient>
   </defs>
   <rect width="256" height="256" fill="url(#g3bg)"/>
-  <circle cx="128" cy="128" r="108" fill="none" stroke="url(#g3bronze)" stroke-width="3"/>
-  <circle cx="128" cy="128" r="98" fill="none" stroke="url(#g3bronze)" stroke-width="1" stroke-dasharray="2 4"/>
+  <circle cx="128" cy="128" r="110" fill="none" stroke="url(#g3gold)" stroke-width="3"/>
+  <circle cx="128" cy="128" r="100" fill="none" stroke="url(#g3gold)" stroke-width="1" stroke-dasharray="2 4"/>
   <!-- 盾 -->
   <g>
-    <path d="M128 70 L76 86 L76 140 Q76 180 128 198 Q180 180 180 140 L180 86 Z"
-          fill="#6a1818" stroke="url(#g3bronze)" stroke-width="3"/>
-    <path d="M128 78 L86 92 L86 140 Q86 172 128 188 Q170 172 170 140 L170 92 Z"
-          fill="none" stroke="url(#g3bronze)" stroke-width="1"/>
-    <!-- 十字帯 -->
-    <rect x="80" y="122" width="96" height="10" fill="url(#g3bronze)" opacity="0.8"/>
-    <rect x="123" y="82" width="10" height="110" fill="url(#g3bronze)" opacity="0.8"/>
+    <path d="M128 64 L78 80 L78 138 Q78 178 128 196 Q178 178 178 138 L178 80 Z"
+          fill="#7a1828" stroke="url(#g3gold)" stroke-width="3"/>
+    <rect x="82" y="120" width="92" height="8" fill="url(#g3gold)" opacity="0.8"/>
+    <rect x="124" y="76" width="8" height="116" fill="url(#g3gold)" opacity="0.8"/>
   </g>
-  <!-- 剣 -->
-  <g transform="translate(128 130) rotate(45)">
-    <rect x="-2" y="-58" width="4" height="70" fill="#d6d6de" stroke="#3a3a42"/>
-    <rect x="-14" y="12" width="28" height="6" fill="url(#g3bronze)" stroke="#3a2810"/>
-    <rect x="-3" y="18" width="6" height="16" fill="url(#g3bronze)" stroke="#3a2810"/>
-    <circle cy="36" r="5" fill="url(#g3bronze)" stroke="#3a2810"/>
-  </g>
-  <text x="128" y="232" text-anchor="middle" fill="#e8b673" font-family="'Cinzel', serif" font-size="18" letter-spacing="3">MILES</text>
+  <text x="128" y="220" text-anchor="middle" fill="url(#g3gold)" font-family="'Noto Serif JP', serif" font-weight="900" font-size="28" letter-spacing="4">普通の人</text>
 </svg>

@@ -70,7 +70,7 @@ export function ScreenView() {
 
   if (!state) {
     return (
-      <main className="min-h-screen parchment-dark flex items-center justify-center text-amber-200 text-3xl">
+      <main className="min-h-screen velvet flex items-center justify-center text-goldleaf-200 text-3xl">
         しばらくお待ちください…
       </main>
     );
@@ -84,7 +84,7 @@ export function ScreenView() {
   const total = participants.length;
 
   return (
-    <main className="min-h-screen parchment-dark text-amber-100 overflow-hidden">
+    <main className="min-h-screen velvet text-goldleaf-100 overflow-hidden">
       {state.phase === "LOBBY" && (
         <LobbyView joinUrl={joinUrl} participants={participants} />
       )}
@@ -124,26 +124,26 @@ function LobbyView({
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 gap-6 p-10">
       <div className="flex flex-col items-center justify-center text-center space-y-6">
-        <div className="font-display tracking-[0.4em] text-amber-300 text-sm">
-          ROYAL COURT
+        <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
+          ◆ FIRST CLASS CHECK ◆
         </div>
-        <h1 className="font-display text-amber-200 text-5xl sm:text-7xl leading-tight">
-          宮廷 格付け会
+        <h1 className="title-block text-gold text-5xl sm:text-7xl leading-tight">
+          一般人 格付けチェック
         </h1>
-        <p className="text-amber-100/80 text-xl">
-          QRコードを読み取りて、<br />お名前にてご参加くださいませ。
+        <p className="text-goldleaf-100 text-xl">
+          あなたは一流？<br />みんなでチェック！
         </p>
-        <div className="bg-parchment-50 p-6 rounded-lg shadow-2xl min-w-[320px] min-h-[320px] flex items-center justify-center">
+        <div className="bg-white p-6 rounded-lg shadow-2xl min-w-[320px] min-h-[320px] flex items-center justify-center border-4 border-goldleaf-400">
           {joinUrl ? (
             <QRCodeSVG value={joinUrl} size={320} level="M" includeMargin={false} />
           ) : (
             <span className="text-stone-600">読み込み中…</span>
           )}
         </div>
-        <div className="text-amber-200/80 text-sm break-all">{joinUrl}</div>
+        <div className="text-goldleaf-200 text-sm break-all">{joinUrl}</div>
       </div>
       <div className="flex flex-col">
-        <h2 className="font-display text-amber-300 tracking-widest mb-4 text-center">
+        <h2 className="font-display text-goldleaf-300 tracking-widest mb-4 text-center">
           本日の参列者（{participants.length}名）
         </h2>
         <div className="flex-1 overflow-hidden">
@@ -151,7 +151,7 @@ function LobbyView({
             {participants.map((p) => (
               <div
                 key={p.id}
-                className="animate-rise rounded-md border border-amber-500/30 bg-black/40 py-2 px-3 text-amber-100 text-center truncate"
+                className="animate-rise rounded-md border border-goldleaf-500/30 bg-black/40 py-2 px-3 text-goldleaf-100 text-center truncate"
               >
                 {p.display_name}
               </div>
@@ -179,14 +179,14 @@ function QuestionView({
   return (
     <div className="min-h-screen flex flex-col p-8 sm:p-14">
       <div className="text-center mb-6">
-        <div className="font-display tracking-[0.4em] text-amber-300 text-sm">
-          QUESTIO {question.order_index}
+        <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
+          ◆ 第 {question.order_index} 問 ◆
         </div>
-        <h1 className="font-display text-amber-200 text-4xl sm:text-6xl mt-2">
+        <h1 className="title-block text-gold text-4xl sm:text-6xl mt-2">
           {question.title}
         </h1>
         {question.description && (
-          <p className="text-amber-100/80 text-xl mt-3">{question.description}</p>
+          <p className="text-goldleaf-100 text-xl mt-3">{question.description}</p>
         )}
       </div>
       <div className="flex-1 grid grid-cols-2 gap-8">
@@ -202,7 +202,7 @@ function QuestionView({
         />
       </div>
       <div className="mt-8 flex flex-wrap items-end justify-center gap-8">
-        <div className="inline-block px-6 py-3 rounded-md border border-amber-500/60 bg-black/40 text-amber-200 text-2xl">
+        <div className="inline-block px-6 py-3 rounded-md border border-goldleaf-500/60 bg-black/40 text-goldleaf-200 text-2xl">
           {locked ? "受付終了" : "回答受付中"} {answered}／{total}名
         </div>
         {!locked && (
@@ -218,21 +218,23 @@ function OptionCard({
   label,
   image,
 }: {
-  letter: string;
+  letter: "A" | "B";
   label: string;
   image: string | null;
 }) {
   return (
-    <div className="rounded-xl border-2 border-amber-500/60 bg-black/40 p-6 flex flex-col items-center justify-center text-center gap-4">
-      <div className="font-display text-amber-300 text-9xl animate-shimmer">{letter}</div>
+    <div className="flex flex-col items-center justify-center text-center gap-4">
+      <div className={`ab-cube ab-cube-${letter} w-48 h-48 sm:w-64 sm:h-64`}>
+        <span className="text-[10rem] sm:text-[14rem] leading-none">{letter}</span>
+      </div>
       {image && (
         <img
           src={image}
           alt=""
-          className="max-h-64 object-contain rounded border border-amber-500/30"
+          className="max-h-56 object-contain rounded border-2 border-goldleaf-400"
         />
       )}
-      <div className="text-amber-100 text-2xl sm:text-3xl leading-snug">{label}</div>
+      <div className="text-goldleaf-50 text-2xl sm:text-3xl leading-snug font-bold">{label}</div>
     </div>
   );
 }
@@ -253,15 +255,21 @@ function RevealView({
   const total = Math.max(1, votesA + votesB);
   return (
     <div className="min-h-screen flex flex-col p-10 items-center justify-center text-center space-y-6">
-      <div className="font-display tracking-[0.4em] text-amber-300 text-sm">
-        VERITAS
+      <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
+        ◆ 正 解 発 表 ◆
       </div>
-      <h1 className="font-display text-amber-200 text-4xl">{question.title}</h1>
-      <div className="font-display text-[14rem] leading-none text-amber-300 animate-shimmer">
-        {correct}
-      </div>
+      <h1 className="title-block text-gold text-4xl">{question.title}</h1>
+      {correct && (
+        <div
+          className={`ab-cube ab-cube-${correct} w-72 h-72 sm:w-96 sm:h-96 animate-shimmer`}
+        >
+          <span className="text-[16rem] sm:text-[20rem] leading-none">{correct}</span>
+        </div>
+      )}
       {commentary && (
-        <p className="max-w-3xl text-amber-100 text-2xl leading-relaxed">{commentary}</p>
+        <p className="max-w-3xl text-goldleaf-50 text-2xl leading-relaxed bg-velvet-900/70 border-2 border-goldleaf-400 rounded-lg p-5">
+          {commentary}
+        </p>
       )}
       <div className="grid grid-cols-2 gap-6 w-full max-w-3xl pt-4">
         <VoteBar letter="A" count={votesA} total={total} highlight={correct === "A"} />
@@ -286,16 +294,16 @@ function VoteBar({
   return (
     <div
       className={`rounded border p-4 ${
-        highlight ? "border-amber-300 bg-amber-500/20" : "border-amber-500/40 bg-black/30"
+        highlight ? "border-goldleaf-300 bg-goldleaf-500/20" : "border-goldleaf-500/40 bg-black/30"
       }`}
     >
       <div className="flex items-baseline justify-between">
-        <span className="font-display text-4xl text-amber-300">{letter}</span>
-        <span className="text-amber-100 text-2xl">{count}名（{pct}%）</span>
+        <span className="font-display text-4xl text-goldleaf-300">{letter}</span>
+        <span className="text-goldleaf-100 text-2xl">{count}名（{pct}%）</span>
       </div>
       <div className="mt-2 h-4 bg-black/40 rounded overflow-hidden">
         <div
-          className="h-full bg-amber-400"
+          className="h-full bg-goldleaf-400"
           style={{ width: `${pct}%`, transition: "width 0.8s" }}
         />
       </div>
@@ -311,34 +319,34 @@ function RankPyramid({ participants }: { participants: Participant[] }) {
   return (
     <div className="min-h-screen p-8 flex flex-col">
       <div className="text-center mb-4">
-        <div className="font-display tracking-[0.4em] text-amber-300 text-sm">
-          CURIA
+        <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
+          ◆ 現 在 の 格 付 け ◆
         </div>
-        <h1 className="font-display text-amber-200 text-4xl">格の序列</h1>
+        <h1 className="title-block text-gold text-4xl">格 序 列</h1>
       </div>
       <div className="flex-1 flex flex-col gap-2">
         {byLevel.map(({ level, members }) => (
           <div
             key={level}
-            className="flex items-center gap-4 border border-amber-500/30 bg-black/30 rounded px-4 py-3"
+            className="flex items-center gap-4 border border-goldleaf-500/30 bg-black/30 rounded px-4 py-3"
           >
             <img
               src={rankIconPath(level)}
               alt=""
-              className="w-16 h-16 rounded-full border border-amber-500/40"
+              className="w-16 h-16 rounded-full border border-goldleaf-500/40"
             />
             <div className="w-40">
-              <div className="text-amber-300 text-xs tracking-widest">
+              <div className="text-goldleaf-300 text-xs tracking-widest">
                 {RANK_LATIN[level]}
               </div>
-              <div className="text-amber-100 font-bold">{RANK_NAMES[level]}</div>
-              <div className="text-amber-200/70 text-xs">{members.length}名</div>
+              <div className="text-goldleaf-100 font-bold">{RANK_NAMES[level]}</div>
+              <div className="text-goldleaf-200/70 text-xs">{members.length}名</div>
             </div>
             <div className="flex-1 flex flex-wrap gap-2">
               {members.map((m) => (
                 <span
                   key={m.id}
-                  className="animate-rise inline-block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-amber-100"
+                  className="animate-rise inline-block rounded-md border border-goldleaf-500/40 bg-goldleaf-500/10 px-3 py-1 text-goldleaf-100"
                 >
                   {m.display_name}
                 </span>
@@ -362,40 +370,35 @@ function FinalView({ participants }: { participants: Participant[] }) {
   return (
     <div className="min-h-screen p-10 flex flex-col items-center">
       {/* スクショ対象範囲 */}
-      <div ref={captureRef} className="parchment-dark w-full flex flex-col items-center p-6">
-        <div className="font-display tracking-[0.4em] text-amber-300 text-sm">
-          CORONATIO MMXXVI
+      <div ref={captureRef} className="velvet w-full flex flex-col items-center p-6">
+        <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
+          ◆ FIRST CLASS CHECK ◆
         </div>
-        <h1 className="font-display text-amber-200 text-5xl mt-2 mb-2">本日の王族</h1>
-        {/* 金冠の装飾 */}
-        <div className="text-amber-300 text-3xl mb-4 animate-shimmer">
+        <h1 className="title-block text-gold text-5xl mt-2 mb-2">本日の一流</h1>
+        <div className="text-goldleaf-300 text-3xl mb-4 animate-shimmer">
           ❖ ─── ✦ ─── ❖
         </div>
         {sortedRoyals.length === 0 ? (
-          <p className="text-amber-100/80 text-2xl">王族の座は、またの機会に。</p>
+          <p className="text-goldleaf-100 text-2xl">「一流」の座は、またの機会に。</p>
         ) : (
           <div className="flex flex-wrap justify-center gap-8 mb-10">
             {sortedRoyals.map((p, idx) => (
               <div
                 key={p.id}
-                className="animate-seal text-center bg-black/40 border-2 border-amber-300 rounded-xl p-6 shadow-[0_0_48px_rgba(212,175,55,0.4)]"
+                className="animate-seal text-center bg-velvet-900/70 border-4 border-goldleaf-300 rounded-xl p-6 shadow-[0_0_48px_rgba(240,198,59,0.55)]"
               >
                 {idx === 0 && sortedRoyals.length > 1 && (
-                  <div className="font-display text-amber-300 text-sm mb-1 tracking-widest">
-                    AUREUS
+                  <div className="font-display text-goldleaf-300 text-sm mb-1 tracking-widest">
+                    最高得点
                   </div>
                 )}
                 <img
                   src={rankIconPath(5)}
                   alt=""
-                  className="w-44 h-44 mx-auto rounded-full border-2 border-amber-400"
+                  className="w-44 h-44 mx-auto rounded-full border-4 border-goldleaf-300"
                 />
-                <div className="mt-3 font-display text-amber-200 text-3xl">
-                  {p.display_name}
-                </div>
-                <div className="text-amber-300 text-sm">
-                  正解数 {p.correct_count}
-                </div>
+                <div className="mt-3 title-block text-gold text-3xl">{p.display_name}</div>
+                <div className="text-goldleaf-300 text-sm">正解数 {p.correct_count}</div>
               </div>
             ))}
           </div>
@@ -404,18 +407,18 @@ function FinalView({ participants }: { participants: Participant[] }) {
           {others.map(({ level, members }) => (
             <div
               key={level}
-              className="border border-amber-500/30 bg-black/30 rounded px-4 py-2 flex items-center gap-3"
+              className="border border-goldleaf-500/30 bg-velvet-900/60 rounded px-4 py-2 flex items-center gap-3"
             >
               <img src={rankIconPath(level)} alt="" className="w-10 h-10 rounded-full" />
-              <span className="text-amber-200 font-bold w-32">{RANK_NAMES[level]}</span>
-              <span className="text-amber-100 flex-1">
+              <span className="text-goldleaf-200 font-bold w-32">{RANK_NAMES[level]}</span>
+              <span className="text-goldleaf-100 flex-1">
                 {members.map((m) => m.display_name).join("、") || "—"}
               </span>
             </div>
           ))}
         </div>
-        <div className="text-amber-300/60 text-xs mt-8 tracking-widest">
-          — HIS ROYAL COURT RANKING —
+        <div className="text-goldleaf-300/60 text-xs mt-8 tracking-widest">
+          一般人 格付けチェック
         </div>
       </div>
       <div className="mt-6">

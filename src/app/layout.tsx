@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "宮廷格付け会 | 結婚式余興",
-  description: "A or B を選びて、真の高貴を見極めよ。",
+  title: "一般人 格付けチェック",
+  description: "Ａか、Ｂか。あなたの「格」が試されます。",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -140,7 +140,7 @@ export default function PlayPage() {
 
   if (!pid || !state || !me) {
     return (
-      <main className="min-h-screen parchment-dark flex items-center justify-center text-amber-200">
+      <main className="min-h-screen velvet flex items-center justify-center text-goldleaf-200">
         お呼び出しをお待ちください…
       </main>
     );
@@ -159,7 +159,7 @@ export default function PlayPage() {
             alt=""
             width={56}
             height={56}
-            className="rounded-full border border-amber-500/40"
+            className="rounded-full border-2 border-goldleaf-400"
           />
           <div className="flex-1 min-w-0">
             <div className={`text-xs tracking-widest ${theme.accent}`}>
@@ -244,15 +244,17 @@ function PhaseView(props: {
     return (
       <ParchmentFrame>
         <div className="text-center space-y-4">
-          <div className="font-display text-amber-300 tracking-widest text-xs">LOBBY</div>
-          <h2 className="font-display text-amber-200 text-2xl">
-            まもなく開宴でございます
+          <div className="font-display text-goldleaf-300 tracking-widest text-xs animate-shimmer">
+            ◆ STAND BY ◆
+          </div>
+          <h2 className="title-block text-gold text-2xl">
+            まもなく開始です
           </h2>
-          <p className="text-amber-100/80 text-sm leading-relaxed">
-            進行役がゲームを開始するまで、<br />しばしお待ちくださいませ。
+          <p className="text-goldleaf-100 text-sm leading-relaxed">
+            司会者が開始するまで、<br />しばらくお待ちください。
           </p>
           <div className="pt-4">
-            <div className="inline-block animate-seal text-amber-300 text-3xl">❖</div>
+            <div className="inline-block animate-seal text-goldleaf-300 text-3xl">❖</div>
           </div>
         </div>
       </ParchmentFrame>
@@ -263,7 +265,7 @@ function PhaseView(props: {
     if (!question) {
       return (
         <ParchmentFrame>
-          <p className="text-center text-amber-100/80">問題を準備中…</p>
+          <p className="text-center text-goldleaf-100/80">問題を準備中…</p>
         </ParchmentFrame>
       );
     }
@@ -273,7 +275,7 @@ function PhaseView(props: {
       <ParchmentFrame>
         <div className="space-y-6">
           <div className="text-center">
-            <div className="text-amber-300 tracking-widest text-xs mb-2">
+            <div className="text-goldleaf-300 tracking-widest text-xs mb-2">
               {locked ? "受付終了" : "Ａ か Ｂ をお選びください"}
             </div>
             <h2 className={`font-display ${themeSoft} text-xl sm:text-2xl`}>
@@ -293,7 +295,7 @@ function PhaseView(props: {
             )}
           </div>
 
-          <div className="grid gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {(["A", "B"] as const).map((opt) => {
               const label = opt === "A" ? question.option_a_label : question.option_b_label;
               const img = opt === "A" ? question.option_a_image : question.option_b_image;
@@ -304,34 +306,45 @@ function PhaseView(props: {
                   type="button"
                   onClick={() => !locked && onPick(opt)}
                   disabled={locked || submitting}
-                  className={`btn-big w-full rounded-md border-2 text-left flex items-center gap-4 px-4 transition-all
-                    ${selected
-                      ? "border-amber-300 bg-amber-500/30 text-amber-50 ring-4 ring-amber-400/40"
-                      : "border-amber-600/50 bg-black/30 text-amber-100 hover:bg-amber-500/10"}
-                    ${!locked && !selected ? themeGlow : ""}
-                    disabled:cursor-not-allowed
-                  `}
+                  className={`ab-cube ab-cube-${opt} aspect-square w-full disabled:cursor-not-allowed disabled:opacity-70 ${
+                    selected ? "ab-cube-selected" : ""
+                  }`}
                 >
-                  <span className="font-display text-4xl w-14 text-amber-300">{opt}</span>
-                  {img && (
-                    <img
-                      src={img}
-                      alt=""
-                      className="w-20 h-20 object-cover rounded border border-amber-500/40"
-                    />
-                  )}
-                  <span className="flex-1 leading-snug">{label}</span>
+                  <span className="text-[6rem] sm:text-[8rem] leading-none">{opt}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className={`text-center text-sm ${themeAccent}`}>
+          {/* 選択肢の説明（画像/テキスト） */}
+          <div className="grid grid-cols-2 gap-3">
+            {(["A", "B"] as const).map((opt) => {
+              const label = opt === "A" ? question.option_a_label : question.option_b_label;
+              const img = opt === "A" ? question.option_a_image : question.option_b_image;
+              return (
+                <div
+                  key={opt}
+                  className="rounded-md border border-goldleaf-500/50 bg-velvet-950/70 p-2 text-center"
+                >
+                  {img && (
+                    <img
+                      src={img}
+                      alt=""
+                      className="w-full h-24 object-cover rounded border border-goldleaf-500/30 mb-2"
+                    />
+                  )}
+                  <div className="text-goldleaf-50 text-sm leading-snug">{label}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className={`text-center text-base font-bold ${themeAccent}`}>
             {locked
-              ? "回答は締め切られました。いましばしお待ちを。"
+              ? "回答は締め切られました。"
               : picked
-                ? `回答：${picked} を承りました。変更も可能でございます。`
-                : "お好きなほうを、心の赴くままに。"}
+                ? `「${picked}」を選択中（変更も可能です）`
+                : "Ａ か Ｂ をタップ"}
           </div>
         </div>
       </ParchmentFrame>
@@ -346,15 +359,17 @@ function PhaseView(props: {
     return (
       <ParchmentFrame>
         <div className="text-center space-y-4">
-          <div className="font-display text-amber-300 tracking-widest text-xs">
-            TRUTH REVEALED
+          <div className="font-display text-goldleaf-300 tracking-widest text-xs animate-shimmer">
+            ◆ 正 解 発 表 ◆
           </div>
-          <h2 className="font-display text-amber-200 text-2xl">正解発表</h2>
-          <div className="text-7xl font-display text-amber-300 animate-shimmer">
-            {correct}
-          </div>
+          <h2 className="title-block text-gold text-2xl">正解は…</h2>
+          {correct && (
+            <div className={`ab-cube ab-cube-${correct} mx-auto w-40 h-40 animate-shimmer`}>
+              <span className="text-[7rem] leading-none">{correct}</span>
+            </div>
+          )}
           {commentary && (
-            <p className="text-amber-100/90 leading-relaxed px-2">{commentary}</p>
+            <p className="text-goldleaf-100/90 leading-relaxed px-2">{commentary}</p>
           )}
           <div
             className={`mt-2 inline-block px-6 py-3 rounded-md border-2 text-lg font-bold ${
@@ -367,11 +382,11 @@ function PhaseView(props: {
           >
             {answered
               ? isCorrect
-                ? `あなた様はお見事、正解でございます`
-                : `惜しくも、不正解でございます`
-              : `未回答につき、不正解扱いとなりまする`}
+                ? `お見事、正解です`
+                : `惜しくも不正解…`
+              : `未回答のため不正解扱いです`}
           </div>
-          <p className="text-amber-200/70 text-sm pt-2">
+          <p className="text-goldleaf-200 text-sm pt-2">
             続いて格の変動にまいります…
           </p>
         </div>
@@ -385,20 +400,20 @@ function PhaseView(props: {
     return (
       <ParchmentFrame>
         <div className="text-center space-y-4">
-          <div className="font-display text-amber-300 tracking-widest text-xs">
-            RANK CHANGE
+          <div className="font-display text-goldleaf-300 tracking-widest text-xs animate-shimmer">
+            ◆ 格 変 動 ◆
           </div>
-          <h2 className="font-display text-amber-200 text-2xl">格の変動</h2>
+          <h2 className="title-block text-gold text-2xl">格の変動</h2>
           <div className="flex items-center justify-around gap-2 pt-2">
             <div className="flex flex-col items-center opacity-70">
               <img
                 src={rankIconPath(prevRank)}
                 alt=""
-                className="w-20 h-20 rounded-full border border-amber-500/40"
+                className="w-20 h-20 rounded-full border border-goldleaf-500/40"
               />
-              <div className="mt-1 text-xs text-amber-100/80">{RANK_NAMES[prevRank]}</div>
+              <div className="mt-1 text-xs text-goldleaf-100/80">{RANK_NAMES[prevRank]}</div>
             </div>
-            <div className="text-3xl text-amber-300">
+            <div className="text-3xl text-goldleaf-300">
               {up ? "▲" : down ? "▼" : "＝"}
             </div>
             <div className="flex flex-col items-center animate-rise">
@@ -412,12 +427,12 @@ function PhaseView(props: {
               </div>
             </div>
           </div>
-          <p className={`text-sm ${themeAccent}`}>
+          <p className={`text-sm font-bold ${themeAccent}`}>
             {up
-              ? "高貴なるお振る舞い、お見事でございました。"
+              ? "格上げ！お見事です。"
               : down
-                ? "次なる挑戦で、お返しあそばせ。"
-                : "変わらぬ御名誉にて候。"}
+                ? "格下げ…次の問題で取り返しましょう。"
+                : "現状維持。次に期待です。"}
           </p>
         </div>
       </ParchmentFrame>
@@ -450,30 +465,32 @@ function FinalCard({
       <div ref={captureRef}>
         <ParchmentFrame>
           <div className="text-center space-y-5">
-            <div className="font-display text-amber-300 tracking-widest text-xs">FINALE</div>
-            <h2 className="font-display text-amber-200 text-2xl">最終格付け</h2>
-            <div className="text-amber-300 text-xl">❖ ─ ✦ ─ ❖</div>
-            <div className="font-display text-amber-100 text-xl">{pname || "名乗りし客人"} 様</div>
-            <div className={`mx-auto inline-block p-4 rounded-full border-2 ${themeFrame} ${themeSurface} ${isKing ? "animate-seal" : ""}`}>
+            <div className="font-display text-goldleaf-300 tracking-widest text-xs animate-shimmer">
+              ◆ FINAL RESULT ◆
+            </div>
+            <h2 className="title-block text-gold text-2xl">最 終 格 付 け</h2>
+            <div className="text-goldleaf-300 text-xl">❖ ─ ✦ ─ ❖</div>
+            <div className="title-block text-gold text-xl">{pname || "ゲスト"} 様</div>
+            <div className={`mx-auto inline-block p-4 rounded-full border-4 ${themeFrame} ${themeSurface} ${isKing ? "animate-seal" : ""}`}>
               <img
                 src={rankIconPath(me.rank_level)}
                 alt=""
                 className="w-36 h-36 rounded-full"
               />
             </div>
-            <div className={`text-3xl font-display ${themeSoft}`}>
+            <div className={`text-4xl title-block text-gold`}>
               {RANK_NAMES[me.rank_level]}
             </div>
             <div className={`text-sm ${themeAccent}`}>
               正解数：{me.correct_count} ／ {RANK_TAGLINES[me.rank_level]}
             </div>
             {isKing && (
-              <p className="text-amber-200 animate-shimmer font-bold">
-                天下に冠たる王族の座、誠におめでとうございます！
+              <p className="text-goldleaf-200 animate-shimmer font-bold">
+                堂々の「一流」認定、おめでとうございます！
               </p>
             )}
-            <div className="text-amber-300/60 text-xs tracking-widest pt-2">
-              — ROYAL COURT RANKING —
+            <div className="text-goldleaf-300/60 text-xs tracking-widest pt-2">
+              一般人 格付けチェック
             </div>
           </div>
         </ParchmentFrame>

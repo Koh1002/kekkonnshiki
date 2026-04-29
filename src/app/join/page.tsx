@@ -34,16 +34,16 @@ export default function JoinPage() {
   }
 
   return (
-    <main className="min-h-screen parchment-dark flex items-center justify-center p-6">
+    <main className="min-h-screen velvet flex items-center justify-center p-6">
       <ParchmentFrame className="max-w-lg w-full">
         <form onSubmit={submit} className="space-y-6 text-center">
-          <div className="font-display text-amber-300 tracking-[0.3em] text-xs">
-            REGISTRATION
+          <div className="font-display text-goldleaf-300 tracking-[0.3em] text-xs">
+            ◆ ENTRY ◆
           </div>
-          <h1 className="font-display text-amber-200 text-2xl sm:text-3xl">
+          <h1 className="title-block text-gold text-2xl sm:text-3xl">
             お名前をお聞かせください
           </h1>
-          <p className="text-amber-100/80 text-sm">
+          <p className="text-goldleaf-100 text-sm">
             その他の情報は一切不要でございます。
           </p>
           <input
@@ -55,19 +55,19 @@ export default function JoinPage() {
             required
             autoComplete="off"
             autoCapitalize="off"
-            className="w-full text-center text-2xl font-bold rounded-md bg-[#0a0608] border-2 border-amber-500/70 text-amber-100 py-4 px-4 focus:outline-none focus:border-amber-300"
+            className="w-full text-center text-2xl font-bold rounded-md bg-velvet-950 border-2 border-goldleaf-400 text-goldleaf-50 py-4 px-4 focus:outline-none focus:border-goldleaf-200"
           />
           {error && (
-            <div className="text-red-300 text-sm bg-red-900/40 border border-red-500/40 rounded p-2">
+            <div className="text-rose-200 text-sm bg-rose-900/40 border border-rose-500/40 rounded p-2">
               {error}
             </div>
           )}
           <button
             type="submit"
             disabled={loading || !name.trim()}
-            className="btn-big w-full rounded-md border-2 border-amber-500 bg-amber-500/20 hover:bg-amber-500/30 disabled:opacity-40 disabled:cursor-not-allowed text-amber-100 transition-all"
+            className="btn-big w-full rounded-md border-2 border-goldleaf-300 bg-gradient-to-b from-goldleaf-500 to-goldleaf-700 hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed text-velvet-950 font-black transition-all"
           >
-            {loading ? "登録中…" : "お席につく"}
+            {loading ? "登録中…" : "席につく"}
           </button>
         </form>
       </ParchmentFrame>

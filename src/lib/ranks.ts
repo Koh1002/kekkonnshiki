@@ -1,77 +1,78 @@
 export const RANK_NAMES: Record<number, string> = {
-  5: "王族",
-  4: "一流貴族",
-  3: "二流貴族",
-  2: "三流貴族",
+  5: "一流",
+  4: "二流",
+  3: "普通の人",
+  2: "三流",
   1: "ご愛敬枠",
 };
 
+// 旧テンプレート（Latin 表記）が残っているので互換のため空文字で残す
 export const RANK_LATIN: Record<number, string> = {
-  5: "REGNUM",
-  4: "NOBILITAS",
-  3: "MILES",
-  2: "VASSALLUS",
+  5: "FIRST CLASS",
+  4: "SECOND CLASS",
+  3: "ORDINARY",
+  2: "THIRD CLASS",
   1: "AMICUS",
 };
 
 export const RANK_TAGLINES: Record<number, string> = {
-  5: "天下に冠たる位",
-  4: "比類なき高貴",
-  3: "誉れ高き騎士",
-  2: "慎ましき紳士",
-  1: "愛すべきお方",
+  5: "正真正銘の一流",
+  4: "あと一歩で頂点",
+  3: "ごく普通の方",
+  2: "もう一息",
+  1: "愛されキャラ",
 };
 
 // Lv ごとのテーマ。Tailwind JIT 用に完全なクラス名を保持する。
 export type RankTheme = {
-  bg: string; // ページ背景
-  frame: string; // 額縁枠の色
-  accent: string; // 強調文字色
-  soft: string; // 本文文字色
-  surface: string; // カード/羊皮紙面の色
-  glow: string; // 選択ボタンのハイライト
+  bg: string;
+  frame: string;
+  accent: string;
+  soft: string;
+  surface: string;
+  glow: string;
 };
 
 export const RANK_THEMES: Record<number, RankTheme> = {
   5: {
-    bg: "bg-gradient-to-b from-black via-purple-950 to-black",
-    frame: "border-amber-400",
-    accent: "text-amber-300",
-    soft: "text-amber-100",
-    surface: "bg-[#1a0a20]/90",
-    glow: "hover:shadow-[0_0_40px_#d4af37]",
+    bg: "velvet",
+    frame: "border-goldleaf-300",
+    accent: "text-goldleaf-200",
+    soft: "text-goldleaf-50",
+    surface: "bg-velvet-900/80",
+    glow: "hover:shadow-[0_0_40px_#f0c63b]",
   },
   4: {
-    bg: "bg-gradient-to-b from-slate-950 via-blue-950 to-slate-950",
-    frame: "border-slate-300",
-    accent: "text-slate-200",
-    soft: "text-slate-100",
-    surface: "bg-[#0c1020]/90",
-    glow: "hover:shadow-[0_0_32px_#cfd6e6]",
+    bg: "velvet",
+    frame: "border-goldleaf-400",
+    accent: "text-goldleaf-300",
+    soft: "text-goldleaf-50",
+    surface: "bg-velvet-900/80",
+    glow: "hover:shadow-[0_0_32px_#d4af37]",
   },
   3: {
-    bg: "bg-gradient-to-b from-[#1a0606] via-[#3a0e0e] to-[#1a0606]",
-    frame: "border-amber-700",
-    accent: "text-amber-400",
-    soft: "text-amber-50",
-    surface: "bg-[#1a0606]/90",
-    glow: "hover:shadow-[0_0_32px_#b07a2a]",
+    bg: "velvet",
+    frame: "border-goldleaf-500",
+    accent: "text-goldleaf-300",
+    soft: "text-goldleaf-50",
+    surface: "bg-velvet-900/80",
+    glow: "hover:shadow-[0_0_24px_#a87900]",
   },
   2: {
-    bg: "bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950",
-    frame: "border-amber-900",
-    accent: "text-amber-700",
-    soft: "text-stone-100",
-    surface: "bg-[#1a1408]/90",
-    glow: "hover:shadow-[0_0_24px_#8a6a2e]",
+    bg: "velvet",
+    frame: "border-goldleaf-600",
+    accent: "text-goldleaf-400",
+    soft: "text-goldleaf-100",
+    surface: "bg-velvet-900/80",
+    glow: "hover:shadow-[0_0_18px_#7a5a16]",
   },
   1: {
-    bg: "bg-[#ece0c2]",
-    frame: "border-stone-600",
-    accent: "text-stone-800",
-    soft: "text-stone-900",
-    surface: "bg-[#f3e9cf]/95",
-    glow: "hover:shadow-[0_0_16px_#7a6a40]",
+    bg: "velvet",
+    frame: "border-stone-400",
+    accent: "text-stone-300",
+    soft: "text-stone-100",
+    surface: "bg-velvet-900/80",
+    glow: "hover:shadow-[0_0_12px_#7a6a40]",
   },
 };
 

@@ -1,36 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="王族">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="一流">
   <defs>
     <radialGradient id="g5bg" cx="50%" cy="45%" r="60%">
-      <stop offset="0%" stop-color="#3a1d3a"/>
-      <stop offset="100%" stop-color="#120612"/>
+      <stop offset="0%" stop-color="#5a121e"/>
+      <stop offset="100%" stop-color="#1a0408"/>
     </radialGradient>
     <linearGradient id="g5gold" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#f6d365"/>
+      <stop offset="0%" stop-color="#fef3c5"/>
+      <stop offset="50%" stop-color="#f0c63b"/>
       <stop offset="100%" stop-color="#a87900"/>
     </linearGradient>
   </defs>
   <rect width="256" height="256" fill="url(#g5bg)"/>
-  <circle cx="128" cy="128" r="108" fill="none" stroke="url(#g5gold)" stroke-width="3"/>
-  <circle cx="128" cy="128" r="98" fill="none" stroke="url(#g5gold)" stroke-width="1" stroke-dasharray="2 4"/>
+  <circle cx="128" cy="128" r="110" fill="none" stroke="url(#g5gold)" stroke-width="4"/>
+  <circle cx="128" cy="128" r="100" fill="none" stroke="url(#g5gold)" stroke-width="1" stroke-dasharray="2 4"/>
   <!-- 月桂冠 -->
   <g fill="none" stroke="url(#g5gold)" stroke-width="3" stroke-linecap="round">
-    <path d="M44 150 Q28 120 48 86 Q68 58 108 62"/>
-    <path d="M212 150 Q228 120 208 86 Q188 58 148 62"/>
-    <path d="M52 110 q10 -4 16 4 M60 130 q10 -4 16 4 M70 150 q10 -4 16 4"/>
-    <path d="M204 110 q-10 -4 -16 4 M196 130 q-10 -4 -16 4 M186 150 q-10 -4 -16 4"/>
+    <path d="M44 152 Q28 122 48 88 Q68 60 108 64"/>
+    <path d="M212 152 Q228 122 208 88 Q188 60 148 64"/>
   </g>
   <!-- 王冠 -->
-  <g fill="url(#g5gold)" stroke="#6e4c00" stroke-width="1.5">
-    <path d="M72 140 L96 96 L120 128 L128 84 L136 128 L160 96 L184 140 Z"/>
-    <rect x="72" y="140" width="112" height="14" rx="2"/>
+  <g fill="url(#g5gold)" stroke="#3a2810" stroke-width="1.5">
+    <path d="M72 142 L96 96 L120 130 L128 84 L136 130 L160 96 L184 142 Z"/>
+    <rect x="72" y="142" width="112" height="14" rx="2"/>
   </g>
-  <circle cx="96" cy="96" r="5" fill="#e8344e" stroke="#6e4c00"/>
-  <circle cx="128" cy="84" r="6" fill="#4a90e2" stroke="#6e4c00"/>
-  <circle cx="160" cy="96" r="5" fill="#37c96b" stroke="#6e4c00"/>
-  <!-- 下部の飾り -->
-  <g fill="url(#g5gold)">
-    <rect x="78" y="160" width="100" height="4"/>
-    <path d="M128 170 l-12 18 h24 z"/>
-  </g>
-  <text x="128" y="232" text-anchor="middle" fill="#f6d365" font-family="'Cinzel', serif" font-size="22" letter-spacing="4">REGNUM</text>
+  <circle cx="96" cy="96" r="5" fill="#e8344e" stroke="#3a2810"/>
+  <circle cx="128" cy="84" r="6" fill="#3a5cb8" stroke="#3a2810"/>
+  <circle cx="160" cy="96" r="5" fill="#37c96b" stroke="#3a2810"/>
+  <!-- 「一流」テキスト -->
+  <text x="128" y="220" text-anchor="middle" fill="url(#g5gold)" font-family="'Noto Serif JP', serif" font-weight="900" font-size="32" letter-spacing="6">一流</text>
 </svg>
