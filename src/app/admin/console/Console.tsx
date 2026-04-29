@@ -36,7 +36,20 @@ export function AdminConsole() {
   useEffect(() => {
     loadQuestions();
     const unsubState = onSnapshot(doc(db(), "gameState", "current"), (snap) => {
-      if (snap.exists()) setState(snap.data() as GameState);
+      if (snap.exists()) {
+        setState(snap.data() as GameState);
+      } else {
+        // 初回ロード時はまだ Firestore にドキュメントが無い → 仮想的に LOBBY を表示。
+        // "ゲーム開始" 等のAPIが走ると Firestore にも実体が作られ、こちらも上書きされる。
+        setState({
+          phase: "LOBBY",
+          current_question_id: null,
+          revealed_correct_option: null,
+          revealed_commentary: null,
+          question_started_at: null,
+          updated_at: new Date().toISOString(),
+        });
+      }
     });
     const unsubParts = onSnapshot(
       query(collection(db(), "participants"), orderBy("joined_at", "asc")),

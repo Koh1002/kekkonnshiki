@@ -39,8 +39,18 @@ export default function PlayPage() {
     if (!pid) return;
 
     const unsubState = onSnapshot(doc(db(), "gameState", "current"), (snap) => {
-      if (!snap.exists()) return;
-      setState(snap.data() as GameState);
+      if (snap.exists()) {
+        setState(snap.data() as GameState);
+      } else {
+        setState({
+          phase: "LOBBY",
+          current_question_id: null,
+          revealed_correct_option: null,
+          revealed_commentary: null,
+          question_started_at: null,
+          updated_at: new Date().toISOString(),
+        });
+      }
     });
 
     const unsubMe = onSnapshot(doc(db(), "participants", pid), (snap) => {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAdmin } from "@/lib/auth";
-import { adminDb } from "@/lib/firebaseAdmin";
+import { adminDb, ensureGameState } from "@/lib/firebaseAdmin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,6 +11,8 @@ function unauth() {
 
 export async function GET() {
   if (!isAdmin()) return unauth();
+  // 管理コンソール起動時に gameState/current を確実に初期化しておく
+  await ensureGameState();
   const db = adminDb();
   const snap = await db.collection("questions").orderBy("order_index", "asc").get();
   const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));

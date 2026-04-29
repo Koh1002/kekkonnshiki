@@ -17,8 +17,18 @@ export function ScreenView() {
 
   useEffect(() => {
     const unsubState = onSnapshot(doc(db(), "gameState", "current"), (snap) => {
-      if (!snap.exists()) return;
-      setState(snap.data() as GameState);
+      if (snap.exists()) {
+        setState(snap.data() as GameState);
+      } else {
+        setState({
+          phase: "LOBBY",
+          current_question_id: null,
+          revealed_correct_option: null,
+          revealed_commentary: null,
+          question_started_at: null,
+          updated_at: new Date().toISOString(),
+        });
+      }
     });
     const unsubParts = onSnapshot(
       query(collection(db(), "participants"), orderBy("joined_at", "asc")),

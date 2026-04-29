@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebaseAdmin";
+import { adminDb, ensureGameState } from "@/lib/firebaseAdmin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -47,6 +47,8 @@ export async function POST(req: Request) {
   }
 
   // ③ それ以外：通常の参加者として登録
+  // 参加初動でも gameState/current を確実に作っておく（screen 経由含む）
+  await ensureGameState();
   const db = adminDb();
   const now = new Date().toISOString();
   const docRef = await db.collection("participants").add({
