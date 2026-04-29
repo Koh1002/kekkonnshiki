@@ -55,19 +55,34 @@
 1. **"プロジェクトの設定 → サービス アカウント"** タブを開く
 2. 下部の **"新しい秘密鍵を生成"** → **"キーを生成"**
 3. `xxxxx-firebase-adminsdk-xxxxx.json` がダウンロードされる
-4. このファイルの中身を **1行化** して `FIREBASE_SERVICE_ACCOUNT_KEY` として Vercel に貼り付けます
+4. このファイルの中身を `FIREBASE_SERVICE_ACCOUNT_KEY` として Vercel に貼り付けます
 
-### 1行化の方法（Mac/Linux）
+### 一番簡単な方法（推奨）
+
+ダウンロードした JSON ファイルを **メモ帳（Notepad）/ TextEdit / VS Code** などで開き、`Ctrl+A` で全選択 → `Ctrl+C` でコピー → Vercel の環境変数欄に **改行ごとそのまま貼り付け** で OK です。
+
+サーバー側の実装は改行入り JSON も正しく解釈します（`private_key` 内部の `\n` も自動復元）。
+
+### 1行化したい場合（任意）
+
+#### Mac / Linux
 ```bash
 cat ~/Downloads/xxxxx-firebase-adminsdk-xxxxx.json | tr -d '\n'
 ```
 
-### 1行化の方法（Windows PowerShell）
+#### Windows PowerShell（バージョン3以降）
 ```powershell
-(Get-Content ~/Downloads/xxxxx-firebase-adminsdk-xxxxx.json -Raw) -replace "`r`n",""
+(Get-Content "$HOME\Downloads\xxxxx-firebase-adminsdk-xxxxx.json" -Raw) -replace "`r`n",""
 ```
 
-この出力をそのまま Vercel の環境変数欄に貼り付けます。
+#### Windows PowerShell（古いバージョン／`-Raw` が使えない場合）
+```powershell
+[System.IO.File]::ReadAllText("$HOME\Downloads\xxxxx-firebase-adminsdk-xxxxx.json") -replace "`r`n",""
+```
+※ パスは絶対パスでもOK。ファイル名と日本語ユーザー名を含むパスでも動きます。
+
+#### コマンドを使いたくない場合
+<https://jsonformatter.org/json-minify> に JSON を貼り付け → **Minify** ボタンで1行化。
 
 > ⚠️ **このJSONは絶対に GitHub にコミットしないでください**。漏洩すると Firestore を第三者に読み書きされます。
 
