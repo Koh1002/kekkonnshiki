@@ -1,6 +1,6 @@
-# 一般人 格付けチェック 🏰
+# 一般人 格付けチェック 🎬
 
-結婚式余興用の **A/B 二択 格付けゲーム** アプリ。中世写本風UIで、司会者（管理者）が進行を完全同期制御。
+結婚式余興用の **A/B 二択 格付けゲーム** アプリ。テレビ番組「芸能人格付けチェック」風の **赤×金** UI で、司会者が進行を完全同期制御。
 
 > **技術スタック**：Next.js 14 (App Router) + TypeScript + Tailwind / Firebase (Firestore + Storage) / Vercel
 
@@ -10,8 +10,10 @@
 
 | ドキュメント | 内容 |
 |---|---|
+| 🎬 [当日ガイド.md](./当日ガイド.md) | **当日 迷わないための立ち上げ手順** |
 | [docs/FIREBASE_SETUP.md](./docs/FIREBASE_SETUP.md) | データベース構築の手順（10〜15分） |
 | [docs/VERCEL_SETUP.md](./docs/VERCEL_SETUP.md) | 本番公開＆環境変数設定の手順（10〜15分） |
+| [public/questions/README.md](./public/questions/README.md) | 問題画像の配置ルール |
 | 本 README | 全体像・機能・ローカル開発向け情報 |
 
 ---
@@ -33,38 +35,39 @@
 ### 参加者（③）
 - **QRコード参加**：会場スクリーンに表示されるQRを読み取り → **ルール説明** → 名前のみ入力して参加
 - 個人情報（メール、電話番号等）は一切収集しない
-- 問題ごとにA/Bの2択を大きなボタンでタップ。押し間違えても回答締切までは変更可
+- 問題ごとに **赤(Ａ)・青(Ｂ)** の大きなキューブをタップ。押し間違えても回答締切までは変更可
 - 画面にタイマー表示、制限時間切れで自動締切
-- 自分の現在の「格」に応じて画面テーマ（色・額縁）が変化
+- 自分の現在の「格」に応じて画面テーマ（額縁の色）が変化
 - 次のフェーズへは司会者がボタンを押すまで進まない
 - 最終結果画面で **「結果を画像で保存」** ボタンから自分の格付けカードをダウンロード
 
 ### 司会者（①）
 - 合言葉でログインする `/admin/console`
 - 現在のフェーズと次に押すボタンが常に1つだけ大きく表示される
-- 参加者の**現在の格・正解数・回答状況がリアルタイムで一覧**
-- 問題の追加・削除・有効/無効切替・順序変更、**制限時間（秒）の編集**が画面上で可能
+- 参加者の **現在の格・正解数・回答状況** がリアルタイムで一覧
+- 問題の追加・削除・有効/無効切替・順序変更、**制限時間（秒）の編集**、**画像URLの編集** が画面上で可能
 - タイマー切れで自動的に回答を締め切り（手動締切ももちろん可）
+- 「**本番5問を一括投入 / 既存削除**」ワンクリックボタンあり
 - ゲーム全体の「リセット」ボタンもあり
 
 ### 会場スクリーン (`/screen`、②)
 - プロジェクタ投影用の大画面レイアウト
 - LOBBY：**特大QRコード** ＋ 参加者名が入場するアニメーション
-- QUESTION：問題文・A/B選択肢・画像を左右対称に表示／回答済み人数カウンタ
-- REVEAL：正解の巨大表示＋解説文＋A/B投票比率バー
-- RANK_UPDATE：5段の格ピラミッドに全参加者が配置されるアニメ
-- FINAL：**王族** が中央で豪奢に表彰（同列なら正解数でタイブレーク）＋ **「最終結果を画像で保存」** ボタン
+- QUESTION：問題文・**赤(Ａ)/青(Ｂ)の特大キューブ**・画像を左右対称に表示／回答済み人数カウンタ／タイマー
+- REVEAL：正解の **巨大なキューブが画面中央でシマー** ＋解説文＋A/B投票比率バー
+- RANK_UPDATE：5段の格序列に全参加者が配置されるアニメ
+- FINAL：**「本日の一流」** が中央で豪奢に表彰（同列なら正解数でタイブレーク）＋ **「最終結果を画像で保存」** ボタン
 
 ### 格（5段階）
 | Lv | 称号 | テーマ |
 |---|---|---|
-| 5 | 王族 | 漆黒×金・紫ベルベット |
-| 4 | 一流貴族 | 紺×銀 |
-| 3 | 二流貴族（開始位置） | 臙脂×銅 |
-| 2 | 三流貴族 | 土色×木目 |
+| 5 | 一流 | 漆黒×金 |
+| 4 | 二流 | 紺×銀 |
+| 3 | 普通の人（開始位置） | 臙脂×銅 |
+| 2 | 三流 | 土色×木目 |
 | 1 | ご愛敬枠 | 羊皮紙・モノクロ |
 
-- 全員がLv3から開始、正解で+1、不正解で-1、1〜5でクリップ
+- 全員がLv3「普通の人」から開始、正解で+1、不正解で-1、1〜5でクリップ
 - 未回答は不正解扱い
 
 ### フェーズ遷移（すべて司会者が制御）
@@ -86,6 +89,7 @@ FINAL ←─[最終結果]─ RANK_UPDATE ←[格変動]─ REVEAL
 1. **Firebase を用意する** → [docs/FIREBASE_SETUP.md](./docs/FIREBASE_SETUP.md)
 2. **Vercel にデプロイする** → [docs/VERCEL_SETUP.md](./docs/VERCEL_SETUP.md)
 3. **当日までにテストプレイ**（参加テスト＆リセット）
+4. **当日は** [当日ガイド.md](./当日ガイド.md) を見ながら立ち上げ
 
 各ドキュメントに画面操作レベルで手順が書いてあります。IT初心者でも順番に進めれば完走できるよう意識しました。
 
@@ -97,7 +101,7 @@ FINAL ←─[最終結果]─ RANK_UPDATE ←[格変動]─ REVEAL
 git clone <このリポジトリ>
 cd kekkonnshiki
 cp .env.example .env.local
-# .env.local を Supabase の値で埋める
+# .env.local を Firebase の値で埋める（FIREBASE_SETUP.md 参照）
 npm install
 npm run dev
 # → http://localhost:3000
@@ -107,43 +111,55 @@ npm run dev
 
 ```bash
 # 管理者Cookie用シークレットの生成（ローカルでも必須）
+# Mac/Linux:
 openssl rand -hex 32
+# Windows PowerShell:
+[guid]::NewGuid().ToString("N") + [guid]::NewGuid().ToString("N")
 ```
 
 ---
 
 ## 🎯 当日の使い方（超要約）
 
+詳細は [当日ガイド.md](./当日ガイド.md) を必ずご一読ください。要点だけ：
+
 1. ノートPC①を会場プロジェクタに接続し `/screen` を全画面表示
 2. ノートPC② or スマホで `/admin` にログインし `/admin/console` を開きっぱなし
 3. 参加者はスクリーンのQRを読み取り、名前を入れるだけで参加
-4. 司会者はコンソールの**大きなボタンを上から順に押していくだけ**
-5. 最後に「最終結果を発表」→ 王族が豪華に表彰 → 「ゲームをリセット」で終了
-
-→ 詳しい当日の操作は [docs/VERCEL_SETUP.md §9](./docs/VERCEL_SETUP.md) のチートシート参照。
+4. 司会者はコンソールの **大きなボタンを上から順に押していくだけ**
+5. 最後に「最終結果を発表」→ 「本日の一流」が豪華に表彰 → 「ゲームをリセット」で終了
 
 ---
 
 ## 📷 画像の使い方
 
-問題の選択肢に写真を使う場合：
+問題の選択肢に写真を使う場合、2通りの方法があります：
 
+### 方式A：リポジトリにコミット（軽量・キャッシュも効く）
+1. `public/questions/` に画像ファイルを配置（例：`q2_a.png`）
+2. git に commit & push
+3. Vercel が自動デプロイ後、ローカルパス `/questions/q2_a.png` で参照可能
+4. `/admin/console` の **画像URL欄** にそのパスを貼り付け
+
+### 方式B：Firebase Storage 経由（リポジトリを汚さない）
 1. [Firebase Storage](./docs/FIREBASE_SETUP.md#8-画像を使う場合firebase-storage) に画像をアップロード
 2. 公開URLをコピー
-3. 管理コンソールの「新しい問題を追加」で `Ａの画像URL` / `Ｂの画像URL` にそのURLを貼り付け
+3. `/admin/console` の **画像URL欄** にそのURLを貼り付け
+
+詳細は [public/questions/README.md](./public/questions/README.md) 参照。
 
 ---
 
 ## 🎨 格アイコンの差し替え
 
-`public/ranks/1.svg` 〜 `5.svg` が既定の中世写本風アイコン。AI 画像生成（ChatGPT / Midjourney / Stable Diffusion 等）で **512×512 PNG** を作って同名で上書きすると、コード変更なしで差し替え可能。
+`public/ranks/1.svg` 〜 `5.svg` が既定の中世風アイコン（赤×金テーマで「一流／二流／普通の人／三流／ご愛敬枠」のラベル付き）。AI 画像生成（ChatGPT / Midjourney / Stable Diffusion 等）で **512×512 PNG** を作って同名（拡張子 `.svg` のままで上書きするか、`src/lib/ranks.ts` の `rankIconPath()` のみ書き換え）で差し替え可能。
 
 推奨プロンプト（英語）：
-- **Lv5 王族**: "Illuminated manuscript king card, crown with laurel, gold leaf, deep purple, medieval heraldry, square 1:1"
-- **Lv4 一流貴族**: "Queen tiara with rose, silver and navy, medieval manuscript painting"
-- **Lv3 二流貴族**: "Knight helm and sword, crimson shield, bronze, heraldic style"
-- **Lv2 三流貴族**: "Wheat sheaf heraldry, parchment, muted earth tones"
-- **Lv1 ご愛敬枠**: "Simple quill pen on worn parchment, humble monochrome"
+- **Lv5 一流**: "Gold crown badge with laurel wreath, deep red velvet background, ornate baroque frame, luxurious"
+- **Lv4 二流**: "Silver tiara with rose gem, navy red background, elegant frame"
+- **Lv3 普通の人**: "Bronze shield emblem, crimson background, simple heraldry"
+- **Lv2 三流**: "Earthy wheat and star emblem, dark background, modest"
+- **Lv1 ご愛敬枠**: "Cute smiling badge, beige background, friendly mascot, humble"
 
 ---
 
@@ -173,29 +189,34 @@ openssl rand -hex 32
 ```
 src/
   app/
-    page.tsx                   ランディング
-    join/page.tsx              参加者：名前入力
+    page.tsx                   ランディング（ルール説明）
+    join/page.tsx              名前入力（ロール分岐の起点）
     play/page.tsx              参加者：プレイ画面（フェーズ切替）
-    screen/page.tsx            会場プロジェクタ用
+    screen/page.tsx            会場プロジェクタ用（cookie ガード付き）
+    screen/ScreenView.tsx      スクリーン本体
     admin/page.tsx             管理者ログイン
     admin/console/             管理コンソール
     api/
-      join/                    参加登録
-      answer/                  回答送信
+      join/                    参加登録 + ロール cookie 発行
+      answer/                  回答送信（フェーズ・タイマー検証付き）
       admin/login/             合言葉ログイン
       admin/phase/             フェーズ進行
-      admin/question/          問題CRUD
-      admin/seed/              仮問題を一括投入
+      admin/question/          問題CRUD（画像URL編集も）
+      admin/seed/              本番5問の一括投入（replace モード対応）
       game/current-question/   フェーズ別の出題データ取得
   components/{ParchmentFrame,RankIcon,Timer,ScreenshotButton}.tsx
   lib/{firebase,firebaseAdmin,ranks,phases,auth}.ts
   types/game.ts
-public/ranks/{1..5}.svg
+public/
+  ranks/{1..5}.svg             格アイコン（Lv5=一流〜Lv1=ご愛敬枠）
+  questions/{q*.png,q*.jpeg}   問題画像（Q2/Q3 etc）
+  questions/README.md          画像配置ルール
 firebase/
-  firestore.rules
+  firestore.rules              セキュリティルール
 docs/
   FIREBASE_SETUP.md
   VERCEL_SETUP.md
+当日ガイド.md                   当日立ち上げ・進行マニュアル
 ```
 
 ---
@@ -208,7 +229,7 @@ Vercel Hobby + Firebase Spark = **無料** で運用可能（結婚式一回分�
 
 ## ⚠️ 運用上の注意
 
-- `FIREBASE_SERVICE_ACCOUNT_KEY`（サービスアカウントJSON）は**絶対に公開しない**（GitHubにも絶対にコミットしない）
+- `FIREBASE_SERVICE_ACCOUNT_KEY`（サービスアカウントJSON）は **絶対に公開しない**（GitHubにも絶対にコミットしない）
 - 本番運用前に必ずリハーサルする。参加者数分のスマホで負荷テストも推奨
 - 会場 Wi-Fi の回線品質次第でRealtime遅延が出る。有線LANの司会者PCを基準にする
 - 当日は `/admin/console` と `/screen` のタブを開きっぱなしにしておく
