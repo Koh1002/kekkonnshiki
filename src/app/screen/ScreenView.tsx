@@ -269,38 +269,50 @@ function RevealView({
         ? question.option_b_label
         : null;
   return (
-    <div className="min-h-screen flex flex-col p-10 items-center justify-center text-center space-y-6">
-      <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
-        ◆ 正 解 発 表 ◆
+    <div className="min-h-screen flex flex-col p-6 sm:p-10">
+      {/* 上段：ヘッダー + 問題タイトル */}
+      <div className="text-center mb-4 shrink-0">
+        <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
+          ◆ 正 解 発 表 ◆
+        </div>
+        <h1 className="title-block text-gold text-3xl sm:text-4xl mt-2">
+          {question.title}
+        </h1>
       </div>
-      <h1 className="title-block text-gold text-4xl">{question.title}</h1>
-      <div className="flex flex-wrap items-center justify-center gap-8">
-        {correct && (
-          <div
-            className={`ab-cube ab-cube-${correct} w-56 h-56 sm:w-72 sm:h-72 animate-shimmer shrink-0`}
-          >
-            <span className="text-[12rem] sm:text-[16rem] leading-none">{correct}</span>
+      {/* 中段：左にA/Bキューブ＋画像、右に解説＋投票バー（4:3 横長前提） */}
+      <div className="flex-1 grid grid-cols-2 gap-6 sm:gap-10 items-center min-h-0">
+        <div className="flex flex-col items-center justify-center gap-3 min-h-0">
+          {correct && (
+            <div
+              className={`ab-cube ab-cube-${correct} w-44 h-44 lg:w-56 lg:h-56 animate-shimmer shrink-0`}
+            >
+              <span className="text-[8rem] lg:text-[11rem] leading-none">{correct}</span>
+            </div>
+          )}
+          {correctImage && (
+            <img
+              src={correctImage}
+              alt=""
+              className="max-h-[42vh] max-w-full object-contain rounded-lg border-4 border-goldleaf-300 shadow-[0_0_36px_rgba(240,198,59,0.55)]"
+            />
+          )}
+          {correctLabel && (
+            <div className="text-goldleaf-50 text-xl lg:text-2xl font-bold">
+              {correctLabel}
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col justify-center gap-5 min-h-0">
+          {commentary && (
+            <p className="text-goldleaf-50 text-xl lg:text-2xl leading-relaxed bg-velvet-900/80 border-2 border-goldleaf-400 rounded-lg p-5">
+              {commentary}
+            </p>
+          )}
+          <div className="grid grid-cols-2 gap-4">
+            <VoteBar letter="A" count={votesA} total={total} highlight={correct === "A"} />
+            <VoteBar letter="B" count={votesB} total={total} highlight={correct === "B"} />
           </div>
-        )}
-        {correctImage && (
-          <img
-            src={correctImage}
-            alt=""
-            className="max-h-80 sm:max-h-[28rem] object-contain rounded-lg border-4 border-goldleaf-300 shadow-[0_0_36px_rgba(240,198,59,0.55)]"
-          />
-        )}
-      </div>
-      {correctLabel && (
-        <div className="text-goldleaf-50 text-2xl sm:text-3xl font-bold">{correctLabel}</div>
-      )}
-      {commentary && (
-        <p className="max-w-3xl text-goldleaf-50 text-2xl leading-relaxed bg-velvet-900/70 border-2 border-goldleaf-400 rounded-lg p-5">
-          {commentary}
-        </p>
-      )}
-      <div className="grid grid-cols-2 gap-6 w-full max-w-3xl pt-4">
-        <VoteBar letter="A" count={votesA} total={total} highlight={correct === "A"} />
-        <VoteBar letter="B" count={votesB} total={total} highlight={correct === "B"} />
+        </div>
       </div>
     </div>
   );
@@ -367,7 +379,7 @@ function RankPyramid({ participants }: { participants: Participant[] }) {
                 {RANK_LATIN[level]}
               </div>
               <div className="text-goldleaf-100 font-bold">{RANK_NAMES[level]}</div>
-              <div className="text-goldleaf-200/70 text-xs">{members.length}名</div>
+              <div className="text-goldleaf-200 text-xs">{members.length}名</div>
             </div>
             <div className="flex-1 flex flex-wrap gap-2">
               {members.map((m) => (
@@ -446,7 +458,7 @@ function FinalView({ participants }: { participants: Participant[] }) {
             </div>
           ))}
         </div>
-        <div className="text-goldleaf-300/60 text-xs mt-8 tracking-widest">
+        <div className="text-goldleaf-300/85 text-xs mt-8 tracking-widest">
           一般人 格付けチェック
         </div>
       </div>

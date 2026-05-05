@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
             MASTER OF CEREMONY
           </div>
           <h1 className="title-block text-gold text-2xl">司会者 入口</h1>
-          <p className="text-goldleaf-100/80 text-sm">合言葉を入力してください。</p>
+          <p className="text-goldleaf-100 text-sm">合言葉を入力してください。</p>
           <input
             type="password"
             value={password}

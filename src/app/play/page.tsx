@@ -265,7 +265,7 @@ function PhaseView(props: {
     if (!question) {
       return (
         <ParchmentFrame>
-          <p className="text-center text-goldleaf-100/80">問題を準備中…</p>
+          <p className="text-center text-goldleaf-100">問題を準備中…</p>
         </ParchmentFrame>
       );
     }
@@ -391,7 +391,7 @@ function PhaseView(props: {
             <div className="text-goldleaf-50 text-base font-bold">{correctLabel}</div>
           )}
           {commentary && (
-            <p className="text-goldleaf-100/90 leading-relaxed px-2">{commentary}</p>
+            <p className="text-goldleaf-100 leading-relaxed px-2">{commentary}</p>
           )}
           <div
             className={`mt-2 inline-block px-6 py-3 rounded-md border-2 text-lg font-bold ${
@@ -433,7 +433,7 @@ function PhaseView(props: {
                 alt=""
                 className="w-20 h-20 rounded-full border border-goldleaf-500/40"
               />
-              <div className="mt-1 text-xs text-goldleaf-100/80">{RANK_NAMES[prevRank]}</div>
+              <div className="mt-1 text-xs text-goldleaf-100">{RANK_NAMES[prevRank]}</div>
             </div>
             <div className="text-3xl text-goldleaf-300">
               {up ? "▲" : down ? "▼" : "＝"}
@@ -511,7 +511,7 @@ function FinalCard({
                 堂々の「一流」認定、おめでとうございます！
               </p>
             )}
-            <div className="text-goldleaf-300/60 text-xs tracking-widest pt-2">
+            <div className="text-goldleaf-300/85 text-xs tracking-widest pt-2">
               一般人 格付けチェック
             </div>
           </div>

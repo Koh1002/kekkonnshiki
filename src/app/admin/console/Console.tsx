@@ -239,18 +239,18 @@ export function AdminConsole() {
         <section className="rounded-lg border border-goldleaf-500/40 bg-black/30 p-5">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <div className="text-goldleaf-300/80 text-xs tracking-widest">現在のフェーズ</div>
+              <div className="text-goldleaf-300 text-xs tracking-widest">現在のフェーズ</div>
               <div className="title-block text-goldleaf-200 text-3xl">
                 {PHASE_LABEL[phase]}
               </div>
               {currentQuestion && (
-                <div className="text-goldleaf-100/80 text-sm mt-1">
+                <div className="text-goldleaf-100 text-sm mt-1">
                   出題中：第{currentQuestion.order_index}問「{currentQuestion.title}」
                   （正解 {currentQuestion.correct_option}／制限 {currentQuestion.timer_seconds}秒）
                 </div>
               )}
               {phase === "QUESTION" || phase === "LOCKED" ? (
-                <div className="text-goldleaf-100/80 text-sm">
+                <div className="text-goldleaf-100 text-sm">
                   回答済み {currentAnswers.length}／{participants.length}名
                 </div>
               ) : null}
@@ -347,7 +347,7 @@ export function AdminConsole() {
               );
             })}
             {participants.length === 0 && (
-              <div className="text-goldleaf-200/70 text-sm">まだ参加者がいません。</div>
+              <div className="text-goldleaf-200 text-sm">まだ参加者がいません。</div>
             )}
           </div>
         </section>
@@ -357,7 +357,7 @@ export function AdminConsole() {
           <h2 className="font-display text-goldleaf-200 text-lg mb-3">
             問題管理（最大5問まで出題できます）
           </h2>
-          <div className="text-goldleaf-300/80 text-xs mb-3">
+          <div className="text-goldleaf-300 text-xs mb-3">
             チェックを入れた問題が ON。▲▼ で順序を入れ替え。
           </div>
           <div className="space-y-2">
@@ -379,7 +379,7 @@ export function AdminConsole() {
                   <div className="text-goldleaf-100 font-bold">
                     第{q.order_index}問：{q.title}
                   </div>
-                  <div className="text-goldleaf-200/80 text-sm">
+                  <div className="text-goldleaf-200 text-sm">
                     Ａ：{q.option_a_label} ／ Ｂ：{q.option_b_label}
                   </div>
                   <div className="text-goldleaf-300 text-xs">
@@ -465,7 +465,7 @@ export function AdminConsole() {
         {/* 投影用リンク */}
         <section className="rounded-lg border border-goldleaf-500/40 bg-black/30 p-5">
           <h2 className="font-display text-goldleaf-200 text-lg mb-2">会場スクリーン</h2>
-          <p className="text-goldleaf-100/80 text-sm mb-2">
+          <p className="text-goldleaf-100 text-sm mb-2">
             プロジェクタに映す画面。フルスクリーンでお使いください。
           </p>
           <a

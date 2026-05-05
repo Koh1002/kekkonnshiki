@@ -70,7 +70,7 @@ export default function Home() {
             >
               参加のお手続きへ
             </Link>
-            <p className="text-goldleaf-200/70 text-xs mt-3">
+            <p className="text-goldleaf-200 text-xs mt-3">
               お名前だけで参加できます。メールアドレスや電話番号は頂戴いたしません。
             </p>
           </div>

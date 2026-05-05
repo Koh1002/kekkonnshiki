@@ -40,10 +40,12 @@ export default function JoinPage() {
           <div className="font-display text-goldleaf-300 tracking-[0.3em] text-xs">
             ◆ ENTRY ◆
           </div>
-          <h1 className="title-block text-gold text-2xl sm:text-3xl">
-            お名前をお聞かせください
-          </h1>
-          <p className="text-goldleaf-100 text-sm">
+          <div className="title-stage mx-auto">
+            <h1 className="title-block text-show text-2xl sm:text-3xl leading-[1.2]">
+              お名前を<br className="sm:hidden" />お聞かせください
+            </h1>
+          </div>
+          <p className="text-goldleaf-100 text-base font-medium">
             その他の情報は一切不要でございます。
           </p>
           <input

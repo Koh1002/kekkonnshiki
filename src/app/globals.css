@@ -15,6 +15,18 @@ body {
   background: #1a0408;
 }
 
+/* 入力欄のプレースホルダーを明確に視認できるように */
+input::placeholder,
+textarea::placeholder {
+  color: rgba(250, 236, 177, 0.6);
+  font-weight: 400;
+}
+input,
+textarea,
+select {
+  color: #fef9e7;
+}
+
 /* ベルベットの背景。番組風に深みのある赤＋金のグロー */
 .velvet {
   background-color: #4a1018;
