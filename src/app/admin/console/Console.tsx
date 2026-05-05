@@ -332,6 +332,17 @@ export function AdminConsole() {
                       {ans ? "回答済" : "未回答"}
                     </span>
                   ) : null}
+                  <button
+                    onClick={async () => {
+                      if (!confirm(`${p.display_name} さんを削除しますか？\n（この方の回答も合わせて削除されます）`)) return;
+                      await fetch(`/api/admin/participant?id=${p.id}`, { method: "DELETE" });
+                    }}
+                    className="ml-1 w-7 h-7 flex items-center justify-center rounded border border-red-500/60 text-red-200 hover:bg-red-900/40 text-lg leading-none"
+                    title={`${p.display_name} を削除`}
+                    aria-label={`${p.display_name} を削除`}
+                  >
+                    ×
+                  </button>
                 </div>
               );
             })}
@@ -375,27 +386,17 @@ export function AdminConsole() {
                     正解：{q.correct_option}
                     {q.commentary ? `｜解説：${q.commentary}` : ""}
                   </div>
-                  <label className="mt-2 inline-flex items-center gap-2 text-goldleaf-200 text-xs">
-                    制限時間
-                    <input
-                      type="number"
-                      min={5}
-                      max={300}
-                      step={5}
-                      value={q.timer_seconds}
-                      onChange={async (e) => {
-                        const v = Math.max(5, Math.min(300, Number(e.target.value) || 30));
-                        await fetch("/api/admin/question", {
-                          method: "PATCH",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ id: q.id, timer_seconds: v }),
-                        });
-                        await loadQuestions();
-                      }}
-                      className="w-20 bg-black/40 border border-goldleaf-500/40 rounded px-2 py-1 text-goldleaf-100"
-                    />
-                    秒
-                  </label>
+                  <TimerInput
+                    value={q.timer_seconds}
+                    onSave={async (v) => {
+                      await fetch("/api/admin/question", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id: q.id, timer_seconds: v }),
+                      });
+                      await loadQuestions();
+                    }}
+                  />
                   <ImageUrlRow question={q} onSaved={loadQuestions} />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -477,6 +478,50 @@ export function AdminConsole() {
         </section>
       </div>
     </main>
+  );
+}
+
+function TimerInput({
+  value,
+  onSave,
+}: {
+  value: number;
+  onSave: (v: number) => Promise<void>;
+}) {
+  // 入力中はローカル文字列で保持し、blur / Enter で保存。
+  // こうしないと onChange のたびに loadQuestions() で値が上書きされ、
+  // 「6 → 60」のようにタイプする途中で切り戻されてしまう。
+  const [text, setText] = useState(String(value));
+  useEffect(() => setText(String(value)), [value]);
+
+  async function commit() {
+    const num = Math.max(5, Math.min(300, parseInt(text, 10) || 30));
+    setText(String(num));
+    if (num !== value) await onSave(num);
+  }
+
+  return (
+    <label className="mt-2 inline-flex items-center gap-2 text-goldleaf-200 text-xs">
+      制限時間
+      <input
+        type="number"
+        inputMode="numeric"
+        min={5}
+        max={300}
+        step={5}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            (e.currentTarget as HTMLInputElement).blur();
+          }
+        }}
+        className="w-20 bg-black/40 border border-goldleaf-500/40 rounded px-2 py-1 text-goldleaf-100"
+      />
+      秒
+    </label>
   );
 }
 
