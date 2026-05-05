@@ -240,7 +240,7 @@ export function AdminConsole() {
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <div className="text-goldleaf-300/80 text-xs tracking-widest">現在のフェーズ</div>
-              <div className="font-display text-goldleaf-200 text-3xl">
+              <div className="title-block text-goldleaf-200 text-3xl">
                 {PHASE_LABEL[phase]}
               </div>
               {currentQuestion && (

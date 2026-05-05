@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Serif+JP:wght@400;600;700;900&display=swap");
 
 html,
 body {
@@ -80,10 +80,16 @@ body {
     drop-shadow(0 0 50px rgba(255, 180, 60, 0.35));
 }
 
-/* タイトル用：text-gold と併用 */
+/* タイトル用：番組風の重厚な日本語ディスプレイフォント */
 .title-block {
+  font-family: "Dela Gothic One", "Noto Serif JP", serif;
+  font-weight: 400; /* Dela Gothic One は単一ウェイト */
+  letter-spacing: 0.02em;
+  /* Noto Serif JP にフォールバックする場合のための保険 */
+}
+.title-block:lang(en),
+.title-block-fallback {
   font-weight: 900;
-  letter-spacing: 0.04em;
 }
 
 /* タイトルを乗せるクリーム色のステージ */

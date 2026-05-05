@@ -278,7 +278,7 @@ function PhaseView(props: {
             <div className="text-goldleaf-300 tracking-widest text-xs mb-2">
               {locked ? "受付終了" : "Ａ か Ｂ をお選びください"}
             </div>
-            <h2 className={`font-display ${themeSoft} text-xl sm:text-2xl`}>
+            <h2 className={`title-block ${themeSoft} text-xl sm:text-2xl`}>
               {question.title}
             </h2>
             {question.description && (
