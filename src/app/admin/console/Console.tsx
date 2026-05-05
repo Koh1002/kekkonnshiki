@@ -417,26 +417,42 @@ export function AdminConsole() {
                 </div>
               </div>
             ))}
-            {questions.length === 0 && (
-              <div className="text-goldleaf-200/80 text-sm space-y-2">
-                <p>問題が登録されていません。下のフォームから追加するか、仮問題を一括投入できます。</p>
-                <button
-                  onClick={async () => {
-                    if (!confirm("仮問題5問を投入しますか？")) return;
-                    const res = await fetch("/api/admin/seed", { method: "POST" });
-                    const data = await res.json();
-                    if (!res.ok) {
-                      alert(data.error ?? "投入に失敗しました");
-                      return;
-                    }
-                    await loadQuestions();
-                  }}
-                  className="px-4 py-2 rounded border border-goldleaf-500/60 text-goldleaf-200 hover:bg-goldleaf-500/10"
-                >
-                  仮問題5問を一括投入
-                </button>
-              </div>
-            )}
+            <div className="text-goldleaf-200/90 text-sm space-y-2 pt-2 border-t border-goldleaf-500/20">
+              <p>
+                {questions.length === 0
+                  ? "問題が登録されていません。下のフォームから追加するか、本番問題5問を一括投入できます。"
+                  : "本番5問（飲食・たまごっち・絵画・アクセサリー・音楽聞き比べ）に差し替えることもできます。既存の問題はすべて削除されます。"}
+              </p>
+              <button
+                onClick={async () => {
+                  const replace = questions.length > 0;
+                  const msg = replace
+                    ? "既存の問題を全て削除し、本番5問に置き換えます。よろしいですか？"
+                    : "本番5問を投入します。よろしいですか？";
+                  if (!confirm(msg)) return;
+                  const res = await fetch("/api/admin/seed", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ replace }),
+                  });
+                  const data = await res.json();
+                  if (!res.ok) {
+                    alert(data.error ?? "投入に失敗しました");
+                    return;
+                  }
+                  await loadQuestions();
+                }}
+                className={`px-4 py-2 rounded border ${
+                  questions.length > 0
+                    ? "border-red-400 text-red-200 hover:bg-red-900/30"
+                    : "border-goldleaf-500/60 text-goldleaf-200 hover:bg-goldleaf-500/10"
+                }`}
+              >
+                {questions.length > 0
+                  ? "本番5問に差し替え（既存削除）"
+                  : "本番5問を一括投入"}
+              </button>
+            </div>
           </div>
 
           <AddQuestionForm onCreated={loadQuestions} />

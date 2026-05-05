@@ -5,81 +5,132 @@ import { adminDb, ensureGameState } from "@/lib/firebaseAdmin";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const SAMPLE_QUESTIONS = [
+// 結婚式当日の本番5問。
+// option_a_image / option_b_image は画像URLを後で管理画面から貼り付ける前提で null。
+// correct_option は規約として「Ａ＝正解」で配置。当日までに画像を A/B に割り当てる際、
+// 正解を Ａ 側に置けば編集不要、Ｂ 側に置きたい場合は管理画面で正解を Ｂ に切り替え可能。
+const WEDDING_QUESTIONS = [
+  // 第1問：飲食 食べ比べ（ウォーミングアップ）
   {
     order_index: 1,
     is_active: true,
-    title: "第一問：高級和牛はどちらでしょう？",
-    description: "肉質等級 A5 の称号を持つのはどちらか、その目をご覧あれ。",
-    option_a_label: "Ａ：霜降り豊かな一皿",
-    option_b_label: "Ｂ：赤身映える一皿",
+    title: "第１問：本当に高級なのはどちら？",
+    description: "ウォーミングアップ。お料理の目利き、見せてください。",
+    option_a_label: "Ａ",
+    option_b_label: "Ｂ",
     correct_option: "A",
-    commentary: "正解はＡ。細やかな霜降りこそA5和牛の証であります。",
+    commentary:
+      "正解は ＿＿。＊当日の飲食物に合わせて解説を更新してください＊",
     timer_seconds: 30,
   },
+  // 第2問：たまごっち vs そだてるっち
   {
     order_index: 2,
     is_active: true,
-    title: "第二問：本物の白トリュフはどちら？",
-    description: "イタリア・アルバ産の至宝か、似て非なる夏の実りか。",
-    option_a_label: "Ａ：凹凸ごつごつとしたもの",
-    option_b_label: "Ｂ：表面なめらかなもの",
+    title: "第２問：本物のたまごっちはどちら？",
+    description:
+      "片方は本物のたまごっち。もう片方は新郎が制作したオリジナルキャラ「そだてるっち」。見抜けますか？",
+    option_a_label: "Ａ",
+    option_b_label: "Ｂ",
     correct_option: "A",
-    commentary: "白トリュフは不揃いな凹凸が特徴。Ｂは夏トリュフの姿。",
+    commentary:
+      "正解は ＿＿。実は新郎、趣味で「そだてるっち」というキャラクターを育てているのです。",
     timer_seconds: 30,
   },
+  // 第3問：絵画（ルノワール vs 新婦祖父）
   {
     order_index: 3,
     is_active: true,
-    title: "第三問：新郎が幼き日に抱いた夢はどちら？",
-    description: "若き日の肖像より、真実の夢を見抜きたまえ。",
-    option_a_label: "Ａ：宇宙飛行士",
-    option_b_label: "Ｂ：ケーキ屋さん",
-    correct_option: "B",
-    commentary: "正解はＢ。甘味への愛は幼き日より続いているのです。",
-    timer_seconds: 30,
+    title: "第３問：本物の名画はどちら？",
+    description:
+      "片方は印象派の巨匠・ルノワールの作品（赤い花）。片方は新婦のお祖父さまが遺した一枚（緑の花）。芸術の目利き、その腕前を。",
+    option_a_label: "Ａ",
+    option_b_label: "Ｂ",
+    correct_option: "A",
+    commentary:
+      "正解は ＿＿（赤い花の方）。ルノワールの代表作のひとつ。Ｂは新婦のお祖父さまの作品で、ご家族にとってかけがえのない宝物です。",
+    timer_seconds: 45,
   },
+  // 第4問：アクセサリー（ティファニー vs プチプラ）
   {
     order_index: 4,
-    is_active: false,
-    title: "第四問：新婦がこよなく愛する花はどちら？",
-    description: "花言葉に込められた想いを読み解かれよ。",
-    option_a_label: "Ａ：薔薇",
-    option_b_label: "Ｂ：すずらん",
-    correct_option: "B",
-    commentary: "正解はＢ。すずらんの花言葉は「再び訪れる幸福」。",
+    is_active: true,
+    title: "第４問：本物のティファニーはどちら？",
+    description:
+      "新郎から新婦への誕生日プレゼント。本物のティファニーのネックレスはどちら？もう片方はプチプラです。",
+    option_a_label: "Ａ",
+    option_b_label: "Ｂ",
+    correct_option: "A",
+    commentary:
+      "正解は ＿＿。新婦の宝物、輝きが違います。",
     timer_seconds: 30,
   },
+  // 第5問：音楽聞き比べ（音源は会場で別機材から再生）
   {
     order_index: 5,
-    is_active: false,
-    title: "第五問：二人が初めて出会った地はどちら？",
-    description: "運命の邂逅、その場所はいずこ。",
-    option_a_label: "Ａ：大学のサークル",
-    option_b_label: "Ｂ：職場の研修",
+    is_active: true,
+    title: "第５問：プロの演奏はどちら？",
+    description:
+      "司会の合図で Ａ → Ｂ の順に会場で音源を再生します。耳を澄まして聴き比べを。",
+    option_a_label: "Ａ（先に再生）",
+    option_b_label: "Ｂ（後に再生）",
     correct_option: "A",
-    commentary: "正解はＡ。学生時代の出会いから今に至ります。",
-    timer_seconds: 30,
+    commentary: "正解は ＿＿。",
+    timer_seconds: 60,
   },
 ];
 
-// 既存の questions が 0 件の時のみ仮問題を投入する安全な seed。
-export async function POST() {
+// POST: 本番問題を投入。既存問題が無ければ追加、あって `replace: true` なら全削除→再投入。
+export async function POST(req: Request) {
   if (!isAdmin()) {
     return NextResponse.json({ error: "認証必要" }, { status: 401 });
   }
+  let replace = false;
+  try {
+    const body = await req.json();
+    replace = body?.replace === true;
+  } catch {
+    // body 無し（旧UI互換）
+  }
+
   const db = adminDb();
   await ensureGameState();
   const existing = await db.collection("questions").limit(1).get();
+
   if (!existing.empty) {
-    return NextResponse.json(
-      { error: "既に問題が存在します。削除してから実行してください。" },
-      { status: 409 }
-    );
+    if (!replace) {
+      return NextResponse.json(
+        { error: "既に問題が存在します。差し替える場合は replace: true を指定してください。" },
+        { status: 409 }
+      );
+    }
+    // 全削除
+    const all = await db.collection("questions").get();
+    let batch = db.batch();
+    let count = 0;
+    for (const doc of all.docs) {
+      batch.delete(doc.ref);
+      count++;
+      if (count % 450 === 0) {
+        await batch.commit();
+        batch = db.batch();
+      }
+    }
+    await batch.commit();
+    // 出題中だった可能性があるため gameState の current_question_id を念のためクリア
+    await db.collection("gameState").doc("current").update({
+      current_question_id: null,
+      revealed_correct_option: null,
+      revealed_commentary: null,
+      question_started_at: null,
+      updated_at: new Date().toISOString(),
+    });
   }
+
+  // 投入
   const batch = db.batch();
   const now = new Date().toISOString();
-  for (const q of SAMPLE_QUESTIONS) {
+  for (const q of WEDDING_QUESTIONS) {
     const ref = db.collection("questions").doc();
     batch.set(ref, {
       ...q,
@@ -89,5 +140,5 @@ export async function POST() {
     });
   }
   await batch.commit();
-  return NextResponse.json({ ok: true, inserted: SAMPLE_QUESTIONS.length });
+  return NextResponse.json({ ok: true, inserted: WEDDING_QUESTIONS.length });
 }
