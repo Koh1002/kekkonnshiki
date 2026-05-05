@@ -15,6 +15,8 @@ type AdminQuestion = {
   title: string;
   option_a_label: string;
   option_b_label: string;
+  option_a_image: string | null;
+  option_b_image: string | null;
   correct_option: "A" | "B";
   commentary: string | null;
   timer_seconds: number;
@@ -394,6 +396,7 @@ export function AdminConsole() {
                     />
                     秒
                   </label>
+                  <ImageUrlRow question={q} onSaved={loadQuestions} />
                 </div>
                 <div className="flex flex-col gap-1">
                   <button
@@ -474,6 +477,65 @@ export function AdminConsole() {
         </section>
       </div>
     </main>
+  );
+}
+
+function ImageUrlRow({
+  question,
+  onSaved,
+}: {
+  question: AdminQuestion;
+  onSaved: () => void | Promise<void>;
+}) {
+  const [a, setA] = useState(question.option_a_image ?? "");
+  const [b, setB] = useState(question.option_b_image ?? "");
+  // 親側で再フェッチされた時に同期
+  useEffect(() => setA(question.option_a_image ?? ""), [question.option_a_image]);
+  useEffect(() => setB(question.option_b_image ?? ""), [question.option_b_image]);
+
+  async function save(field: "option_a_image" | "option_b_image", value: string) {
+    await fetch("/api/admin/question", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: question.id, [field]: value || null }),
+    });
+    await onSaved();
+  }
+
+  return (
+    <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+      {(["A", "B"] as const).map((side) => {
+        const value = side === "A" ? a : b;
+        const setValue = side === "A" ? setA : setB;
+        const field = side === "A" ? "option_a_image" : "option_b_image";
+        return (
+          <div key={side} className="flex items-center gap-2">
+            <span className="text-goldleaf-300 text-xs w-4">{side}</span>
+            {value && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={value}
+                alt=""
+                className="w-9 h-9 object-cover rounded border border-goldleaf-500/40"
+              />
+            )}
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              onBlur={(e) => {
+                const v = e.target.value.trim();
+                if (v !== (side === "A" ? question.option_a_image ?? "" : question.option_b_image ?? "")) {
+                  save(field, v);
+                }
+              }}
+              placeholder="画像URL（例: /questions/q2_a.png または https://…）"
+              className="flex-1 min-w-0 bg-black/40 border border-goldleaf-500/40 rounded px-2 py-1 text-goldleaf-100 text-xs"
+            />
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

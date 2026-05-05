@@ -27,14 +27,16 @@ const WEDDING_QUESTIONS = [
   {
     order_index: 2,
     is_active: true,
-    title: "第２問：本物のたまごっちはどちら？",
+    title: "第２問：たまごっちはどちら？",
     description:
-      "片方は本物のたまごっち。もう片方は新郎が制作したオリジナルキャラ「そだてるっち」。見抜けますか？",
+      "片方はたまごっち、もう片方は新郎オリジナルキャラ「そだてるっち」。見抜けますか？",
     option_a_label: "Ａ",
     option_b_label: "Ｂ",
+    option_a_image: "/questions/q2_a.png",
+    option_b_image: "/questions/q2_b.png",
     correct_option: "A",
     commentary:
-      "正解は ＿＿。実は新郎、趣味で「そだてるっち」というキャラクターを育てているのです。",
+      "正解は Ａ。Ｂは新郎オリジナルの「そだてるっち」でした！",
     timer_seconds: 30,
   },
   // 第3問：絵画（ルノワール vs 新婦祖父）
@@ -46,9 +48,11 @@ const WEDDING_QUESTIONS = [
       "片方は印象派の巨匠・ルノワールの作品（赤い花）。片方は新婦のお祖父さまが遺した一枚（緑の花）。芸術の目利き、その腕前を。",
     option_a_label: "Ａ",
     option_b_label: "Ｂ",
+    option_a_image: "/questions/q3_a_renoir.jpg",
+    option_b_image: "/questions/q3_b_grandfather.jpg",
     correct_option: "A",
     commentary:
-      "正解は ＿＿（赤い花の方）。ルノワールの代表作のひとつ。Ｂは新婦のお祖父さまの作品で、ご家族にとってかけがえのない宝物です。",
+      "正解は Ａ（赤い花）。ルノワールの花の絵。Ｂは新婦のお祖父さまの作品で、ご家族にとってかけがえのない宝物です。",
     timer_seconds: 45,
   },
   // 第4問：アクセサリー（ティファニー vs プチプラ）
