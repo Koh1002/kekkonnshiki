@@ -127,9 +127,12 @@ function LobbyView({
         <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
           ◆ FIRST CLASS CHECK ◆
         </div>
-        <h1 className="title-block text-gold text-5xl sm:text-7xl leading-tight">
-          一般人 格付けチェック
-        </h1>
+        <div className="title-stage mx-auto">
+          <h1 className="title-block text-gold-on-cream text-5xl sm:text-7xl leading-[1.15]">
+            <span className="block">一般人</span>
+            <span className="block">格付けチェック</span>
+          </h1>
+        </div>
         <p className="text-goldleaf-100 text-xl">
           あなたは一流？<br />みんなでチェック！
         </p>
@@ -374,7 +377,9 @@ function FinalView({ participants }: { participants: Participant[] }) {
         <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
           ◆ FIRST CLASS CHECK ◆
         </div>
-        <h1 className="title-block text-gold text-5xl mt-2 mb-2">本日の一流</h1>
+        <div className="title-stage mt-2 mb-2">
+          <h1 className="title-block text-gold-on-cream text-5xl">本日の一流</h1>
+        </div>
         <div className="text-goldleaf-300 text-3xl mb-4 animate-shimmer">
           ❖ ─── ✦ ─── ❖
         </div>

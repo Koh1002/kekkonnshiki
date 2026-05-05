@@ -9,10 +9,12 @@ export default function Home() {
           <div className="font-display text-goldleaf-300 tracking-[0.4em] text-xs animate-shimmer">
             ◆ FIRST CLASS CHECK ◆
           </div>
-          <h1 className="title-block text-gold text-4xl sm:text-5xl md:text-6xl leading-tight">
-            <span className="block">一般人</span>
-            <span className="block">格付けチェック</span>
-          </h1>
+          <div className="title-stage mx-auto">
+            <h1 className="title-block text-gold-on-cream text-4xl sm:text-5xl md:text-6xl leading-[1.15]">
+              <span className="block">一般人</span>
+              <span className="block">格付けチェック</span>
+            </h1>
+          </div>
           <p className="text-goldleaf-100 text-base sm:text-lg leading-relaxed">
             あなたは一流？<br/>みんなでチェック！
           </p>
