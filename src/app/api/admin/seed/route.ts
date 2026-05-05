@@ -34,9 +34,9 @@ const WEDDING_QUESTIONS = [
     option_b_label: "Ｂ",
     option_a_image: "/questions/q2_a.png",
     option_b_image: "/questions/q2_b.png",
-    correct_option: "A",
+    correct_option: "B",
     commentary:
-      "正解は Ａ。Ｂは新郎オリジナルの「そだてるっち」でした！",
+      "正解は Ｂ。Ａは新郎オリジナルの「そだてるっち」でした！",
     timer_seconds: 30,
   },
   // 第3問：絵画（ルノワール vs 新婦祖父）
@@ -48,8 +48,8 @@ const WEDDING_QUESTIONS = [
       "片方は印象派の巨匠・ルノワールの作品（赤い花）。片方は新婦のお祖父さまが遺した一枚（緑の花）。芸術の目利き、その腕前を。",
     option_a_label: "Ａ",
     option_b_label: "Ｂ",
-    option_a_image: "/questions/q3_a_renoir.jpg",
-    option_b_image: "/questions/q3_b_grandfather.jpg",
+    option_a_image: "/questions/q3_a_renoir.jpeg",
+    option_b_image: "/questions/q3_b_grandfather.jpeg",
     correct_option: "A",
     commentary:
       "正解は Ａ（赤い花）。ルノワールの花の絵。Ｂは新婦のお祖父さまの作品で、ご家族にとってかけがえのない宝物です。",
