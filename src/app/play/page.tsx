@@ -330,7 +330,7 @@ function PhaseView(props: {
                     <img
                       src={img}
                       alt=""
-                      className="w-full h-24 object-cover rounded border border-goldleaf-500/30 mb-2"
+                      className="w-full h-40 sm:h-48 object-contain rounded border border-goldleaf-500/30 mb-2 bg-velvet-900"
                     />
                   )}
                   <div className="text-goldleaf-50 text-sm leading-snug">{label}</div>
@@ -356,6 +356,18 @@ function PhaseView(props: {
     const picked = myAnswer?.selected_option ?? null;
     const answered = !!picked;
     const isCorrect = answered && picked === correct;
+    const correctImage =
+      correct === "A"
+        ? question?.option_a_image
+        : correct === "B"
+          ? question?.option_b_image
+          : null;
+    const correctLabel =
+      correct === "A"
+        ? question?.option_a_label
+        : correct === "B"
+          ? question?.option_b_label
+          : null;
     return (
       <ParchmentFrame>
         <div className="text-center space-y-4">
@@ -367,6 +379,16 @@ function PhaseView(props: {
             <div className={`ab-cube ab-cube-${correct} mx-auto w-40 h-40 animate-shimmer`}>
               <span className="text-[7rem] leading-none">{correct}</span>
             </div>
+          )}
+          {correctImage && (
+            <img
+              src={correctImage}
+              alt=""
+              className="mx-auto max-h-56 object-contain rounded-lg border-2 border-goldleaf-300 shadow-[0_0_24px_rgba(240,198,59,0.5)]"
+            />
+          )}
+          {correctLabel && (
+            <div className="text-goldleaf-50 text-base font-bold">{correctLabel}</div>
           )}
           {commentary && (
             <p className="text-goldleaf-100/90 leading-relaxed px-2">{commentary}</p>

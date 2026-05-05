@@ -256,18 +256,42 @@ function RevealView({
   votesB: number;
 }) {
   const total = Math.max(1, votesA + votesB);
+  const correctImage =
+    correct === "A"
+      ? question.option_a_image
+      : correct === "B"
+        ? question.option_b_image
+        : null;
+  const correctLabel =
+    correct === "A"
+      ? question.option_a_label
+      : correct === "B"
+        ? question.option_b_label
+        : null;
   return (
     <div className="min-h-screen flex flex-col p-10 items-center justify-center text-center space-y-6">
       <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
         ◆ 正 解 発 表 ◆
       </div>
       <h1 className="title-block text-gold text-4xl">{question.title}</h1>
-      {correct && (
-        <div
-          className={`ab-cube ab-cube-${correct} w-72 h-72 sm:w-96 sm:h-96 animate-shimmer`}
-        >
-          <span className="text-[16rem] sm:text-[20rem] leading-none">{correct}</span>
-        </div>
+      <div className="flex flex-wrap items-center justify-center gap-8">
+        {correct && (
+          <div
+            className={`ab-cube ab-cube-${correct} w-56 h-56 sm:w-72 sm:h-72 animate-shimmer shrink-0`}
+          >
+            <span className="text-[12rem] sm:text-[16rem] leading-none">{correct}</span>
+          </div>
+        )}
+        {correctImage && (
+          <img
+            src={correctImage}
+            alt=""
+            className="max-h-80 sm:max-h-[28rem] object-contain rounded-lg border-4 border-goldleaf-300 shadow-[0_0_36px_rgba(240,198,59,0.55)]"
+          />
+        )}
+      </div>
+      {correctLabel && (
+        <div className="text-goldleaf-50 text-2xl sm:text-3xl font-bold">{correctLabel}</div>
       )}
       {commentary && (
         <p className="max-w-3xl text-goldleaf-50 text-2xl leading-relaxed bg-velvet-900/70 border-2 border-goldleaf-400 rounded-lg p-5">
