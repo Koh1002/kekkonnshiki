@@ -86,10 +86,11 @@ body {
   letter-spacing: 0.04em;
 }
 
-/* タイトルを乗せるクリーム色のステージ。番組風の冒頭タイトルを再現 */
+/* タイトルを乗せるクリーム色のステージ */
 .title-stage {
   display: inline-block;
-  padding: 1rem 2.25rem;
+  padding: 0.6rem 1rem;
+  max-width: 100%;
   background:
     radial-gradient(ellipse at center,
       #fff8de 0%,
@@ -98,11 +99,16 @@ body {
   border-radius: 14px;
   box-shadow:
     0 0 0 2px #1a0408,
-    0 0 0 6px #f0c63b,
-    0 0 0 8px #1a0408,
+    0 0 0 5px #f0c63b,
+    0 0 0 7px #1a0408,
     0 6px 24px rgba(0, 0, 0, 0.7),
     0 0 36px rgba(255, 200, 80, 0.45);
   position: relative;
+}
+@media (min-width: 640px) {
+  .title-stage {
+    padding: 1rem 2.25rem;
+  }
 }
 .title-stage::before,
 .title-stage::after {
@@ -111,26 +117,40 @@ body {
   top: 50%;
   transform: translateY(-50%);
   color: #1a0408;
-  font-size: 0.9em;
+  font-size: 0.7em;
   text-shadow: 0 0 6px rgba(240, 198, 59, 0.9);
 }
-.title-stage::before { left: 0.5rem; }
-.title-stage::after { right: 0.5rem; }
+.title-stage::before { left: 0.4rem; }
+.title-stage::after { right: 0.4rem; }
 
-/* クリーム地に乗せる金文字（title-stage 内で使う） */
-.text-gold-on-cream {
-  background: linear-gradient(180deg,
-    #fff3a0 0%,
-    #e8b537 35%,
-    #b8860b 70%,
-    #7a5a16 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-stroke: 3px #1a0408;
+/* 番組風の赤文字＋太い白縁。モバイルではストロークを少し細く */
+.text-show {
+  color: #c2003e;
+  -webkit-text-stroke: 4px #ffffff;
+  paint-order: stroke fill;
   filter:
-    drop-shadow(0 2px 0 rgba(0, 0, 0, 0.7))
-    drop-shadow(0 0 8px rgba(184, 134, 11, 0.4));
+    drop-shadow(0 4px 0 rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 14px rgba(255, 255, 255, 0.5));
+}
+@media (min-width: 640px) {
+  .text-show {
+    -webkit-text-stroke: 6px #ffffff;
+  }
+}
+
+/* 旧クラス（互換）：呼び出し側を一気に変えなくても動くよう .text-show に転送 */
+.text-gold-on-cream {
+  color: #c2003e;
+  -webkit-text-stroke: 4px #ffffff;
+  paint-order: stroke fill;
+  filter:
+    drop-shadow(0 4px 0 rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 14px rgba(255, 255, 255, 0.5));
+}
+@media (min-width: 640px) {
+  .text-gold-on-cream {
+    -webkit-text-stroke: 6px #ffffff;
+  }
 }
 
 /* 大きなタップターゲット用 */

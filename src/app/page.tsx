@@ -10,7 +10,7 @@ export default function Home() {
             ◆ FIRST CLASS CHECK ◆
           </div>
           <div className="title-stage mx-auto">
-            <h1 className="title-block text-gold-on-cream text-4xl sm:text-5xl md:text-6xl leading-[1.15]">
+            <h1 className="title-block text-show text-3xl sm:text-5xl md:text-6xl leading-[1.15]">
               <span className="block">一般人</span>
               <span className="block">格付けチェック</span>
             </h1>
@@ -52,6 +52,12 @@ export default function Home() {
                 <span className="font-display text-goldleaf-300 shrink-0 font-black">⑤</span>
                 <span>
                   画面の進行は司会者が司ります。<strong className="text-goldleaf-200">お手元で「次へ」は不要</strong>、ただお待ちください。
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="font-display text-rose-300 shrink-0 font-black">⑥</span>
+                <span>
+                  <strong className="text-rose-200">AIにこっそり尋ねるのは品格を損ねる所業</strong>。文明の利器に頼らず、ご自身の眼と感性のみでお答えくださいませ。
                 </span>
               </li>
             </ol>

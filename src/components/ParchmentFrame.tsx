@@ -11,7 +11,7 @@ export function ParchmentFrame({
 }) {
   return (
     <div className={`relative ${className}`}>
-      <div className="gold-frame p-6 sm:p-10">{children}</div>
+      <div className="gold-frame p-4 sm:p-6 md:p-10">{children}</div>
     </div>
   );
 }
