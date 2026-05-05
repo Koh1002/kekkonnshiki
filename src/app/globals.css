@@ -129,33 +129,53 @@ body {
 .title-stage::before { left: 0.4rem; }
 .title-stage::after { right: 0.4rem; }
 
-/* 番組風の赤文字＋太い白縁。モバイルではストロークを少し細く */
+/* 番組風の赤文字＋白縁。グリフ本体は full サイズの赤、白は外側だけに伸ばす。
+   -webkit-text-stroke (1〜2px, 同色) で glyph を僅かに太らせ、
+   text-shadow を 8 方向 × 多重距離で重ねて白の輪郭を作る。 */
 .text-show {
   color: #c2003e;
-  -webkit-text-stroke: 4px #ffffff;
-  paint-order: stroke fill;
-  filter:
-    drop-shadow(0 4px 0 rgba(0, 0, 0, 0.55))
-    drop-shadow(0 0 14px rgba(255, 255, 255, 0.5));
+  -webkit-text-stroke: 1px #c2003e;
+  text-shadow:
+    -4px 0 0 #fff, 4px 0 0 #fff, 0 -4px 0 #fff, 0 4px 0 #fff,
+    -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff,
+    -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff,
+    0 6px 0 #1a0408,
+    0 10px 16px rgba(0, 0, 0, 0.55),
+    0 0 24px rgba(255, 255, 255, 0.35);
 }
 @media (min-width: 640px) {
   .text-show {
-    -webkit-text-stroke: 6px #ffffff;
+    -webkit-text-stroke: 2px #c2003e;
+    text-shadow:
+      -6px 0 0 #fff, 6px 0 0 #fff, 0 -6px 0 #fff, 0 6px 0 #fff,
+      -5px -5px 0 #fff, 5px -5px 0 #fff, -5px 5px 0 #fff, 5px 5px 0 #fff,
+      -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff,
+      0 8px 0 #1a0408,
+      0 14px 22px rgba(0, 0, 0, 0.6),
+      0 0 36px rgba(255, 255, 255, 0.45);
   }
 }
 
-/* 旧クラス（互換）：呼び出し側を一気に変えなくても動くよう .text-show に転送 */
+/* 旧クラス（互換）：呼び出し側を一気に変えなくても動くよう .text-show と同じ表現に */
 .text-gold-on-cream {
   color: #c2003e;
-  -webkit-text-stroke: 4px #ffffff;
-  paint-order: stroke fill;
-  filter:
-    drop-shadow(0 4px 0 rgba(0, 0, 0, 0.55))
-    drop-shadow(0 0 14px rgba(255, 255, 255, 0.5));
+  -webkit-text-stroke: 1px #c2003e;
+  text-shadow:
+    -4px 0 0 #fff, 4px 0 0 #fff, 0 -4px 0 #fff, 0 4px 0 #fff,
+    -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff,
+    -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff,
+    0 6px 0 #1a0408,
+    0 10px 16px rgba(0, 0, 0, 0.55);
 }
 @media (min-width: 640px) {
   .text-gold-on-cream {
-    -webkit-text-stroke: 6px #ffffff;
+    -webkit-text-stroke: 2px #c2003e;
+    text-shadow:
+      -6px 0 0 #fff, 6px 0 0 #fff, 0 -6px 0 #fff, 0 6px 0 #fff,
+      -5px -5px 0 #fff, 5px -5px 0 #fff, -5px 5px 0 #fff, 5px 5px 0 #fff,
+      -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff,
+      0 8px 0 #1a0408,
+      0 14px 22px rgba(0, 0, 0, 0.6);
   }
 }
 
