@@ -14,7 +14,7 @@ const WEDDING_QUESTIONS = [
   {
     order_index: 1,
     is_active: true,
-    title: "第１問：本当に高級なのはどちら？",
+    title: "本当に高級なのはどちら？",
     description: "ウォーミングアップ。お料理の目利き、見せてください。",
     option_a_label: "Ａ",
     option_b_label: "Ｂ",
@@ -27,7 +27,7 @@ const WEDDING_QUESTIONS = [
   {
     order_index: 2,
     is_active: true,
-    title: "第２問：たまごっちはどちら？",
+    title: "たまごっちはどちら？",
     description:
       "片方はたまごっち、もう片方は新郎オリジナルキャラ「そだてるっち」。見抜けますか？",
     option_a_label: "Ａ",
@@ -43,7 +43,7 @@ const WEDDING_QUESTIONS = [
   {
     order_index: 3,
     is_active: true,
-    title: "第３問：本物の名画はどちら？",
+    title: "本物の名画はどちら？",
     description:
       "片方は印象派の巨匠・ルノワールの作品（赤い花）。片方は新婦のお祖父さまが遺した一枚（緑の花）。芸術の目利き、その腕前を。",
     option_a_label: "Ａ",
@@ -59,7 +59,7 @@ const WEDDING_QUESTIONS = [
   {
     order_index: 4,
     is_active: true,
-    title: "第４問：本物のティファニーはどちら？",
+    title: "本物のティファニーはどちら？",
     description:
       "新郎から新婦への誕生日プレゼント。本物のティファニーのネックレスはどちら？もう片方はプチプラです。",
     option_a_label: "Ａ",
@@ -73,7 +73,7 @@ const WEDDING_QUESTIONS = [
   {
     order_index: 5,
     is_active: true,
-    title: "第５問：プロの演奏はどちら？",
+    title: "プロの演奏はどちら？",
     description:
       "司会の合図で Ａ → Ｂ の順に会場で音源を再生します。耳を澄まして聴き比べを。",
     option_a_label: "Ａ（先に再生）",
