@@ -196,10 +196,20 @@ export function AdminConsole() {
       });
       break;
     case "QUESTION":
-      actions.push({ key: "lock", label: "回答を締め切る", primary: true });
+      if (!state.question_started_at) {
+        actions.push({
+          key: "startTimer",
+          label: "カウントダウン開始",
+          primary: true,
+        });
+      } else {
+        actions.push({ key: "lock", label: "回答を締め切る", primary: true });
+        actions.push({ key: "reopen", label: "時間を延長／やり直し" });
+      }
       break;
     case "LOCKED":
       actions.push({ key: "tally", label: "投票数を表示する", primary: true });
+      actions.push({ key: "reopen", label: "再募集（もう一度回答時間）" });
       break;
     case "COUNT":
       actions.push({ key: "reveal", label: "正解を発表する", primary: true });

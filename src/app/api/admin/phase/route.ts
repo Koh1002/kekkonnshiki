@@ -8,6 +8,8 @@ export const dynamic = "force-dynamic";
 
 type Action =
   | "start"
+  | "startTimer"
+  | "reopen"
   | "lock"
   | "tally"
   | "reveal"
@@ -113,6 +115,40 @@ export async function POST(req: Request) {
       await stateRef.update({
         phase: "QUESTION",
         current_question_id: first.id,
+        revealed_correct_option: null,
+        revealed_commentary: null,
+        // タイマーは司会者が「カウントダウン開始」を押すまで動かさない
+        question_started_at: null,
+        updated_at: new Date().toISOString(),
+      });
+      return NextResponse.json({ ok: true });
+    }
+
+    case "startTimer": {
+      if (state.phase !== "QUESTION") {
+        return NextResponse.json(
+          { error: `QUESTIONではありません (現在: ${state.phase})` },
+          { status: 409 }
+        );
+      }
+      await stateRef.update({
+        question_started_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+      return NextResponse.json({ ok: true });
+    }
+
+    case "reopen": {
+      // 再募集：QUESTION に戻し、カウントダウンを今から再スタート。
+      // 既存の回答は残す（変更も可能）。LOCKED からの復帰にも対応。
+      if (state.phase !== "QUESTION" && state.phase !== "LOCKED") {
+        return NextResponse.json(
+          { error: `QUESTION/LOCKEDではありません (現在: ${state.phase})` },
+          { status: 409 }
+        );
+      }
+      await stateRef.update({
+        phase: "QUESTION",
         revealed_correct_option: null,
         revealed_commentary: null,
         question_started_at: new Date().toISOString(),
@@ -260,7 +296,8 @@ export async function POST(req: Request) {
           current_question_id: next.id,
           revealed_correct_option: null,
           revealed_commentary: null,
-          question_started_at: new Date().toISOString(),
+          // 次の問題でもタイマーは司会者が手動で開始
+          question_started_at: null,
           updated_at: new Date().toISOString(),
         });
       } else {

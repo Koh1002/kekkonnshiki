@@ -40,9 +40,17 @@ export async function POST(req: Request) {
     );
   }
 
+  // カウントダウン開始前は回答を受け付けない（司会者が「カウントダウン開始」を押すまで）
+  if (!state.question_started_at) {
+    return NextResponse.json(
+      { error: "まだ回答を受け付けておりません。司会者の合図をお待ちください" },
+      { status: 409 }
+    );
+  }
+
   // 制限時間チェック（わずかに猶予を持たせる）
   const GRACE_MS = 1000;
-  if (state.question_started_at) {
+  {
     const qSnap = await db.collection("questions").doc(question_id).get();
     const totalMs = ((qSnap.data()?.timer_seconds ?? 30) as number) * 1000;
     const elapsedMs = Date.now() - new Date(state.question_started_at).getTime();

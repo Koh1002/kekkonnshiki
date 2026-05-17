@@ -235,11 +235,23 @@ function QuestionView({
         />
       </div>
       <div className="mt-8 flex flex-wrap items-end justify-center gap-8">
-        <div className="inline-block px-6 py-3 rounded-md border border-goldleaf-500/60 bg-black/40 text-goldleaf-200 text-2xl">
-          {locked ? "受付終了" : "回答受付中"} {answered}／{total}名
-        </div>
-        {!locked && (
-          <Timer startedAt={startedAt} totalSeconds={question.timer_seconds} size="lg" />
+        {!locked && !startedAt ? (
+          <div className="inline-block px-8 py-4 rounded-md border-2 border-goldleaf-400 bg-velvet-900/70 text-goldleaf-100 text-3xl animate-shimmer">
+            まもなく開始します…
+          </div>
+        ) : (
+          <>
+            <div className="inline-block px-6 py-3 rounded-md border border-goldleaf-500/60 bg-black/40 text-goldleaf-200 text-2xl">
+              {locked ? "受付終了" : "回答受付中"} {answered}／{total}名
+            </div>
+            {!locked && (
+              <Timer
+                startedAt={startedAt}
+                totalSeconds={question.timer_seconds}
+                size="lg"
+              />
+            )}
+          </>
         )}
       </div>
     </div>

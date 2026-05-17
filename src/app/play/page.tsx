@@ -270,13 +270,19 @@ function PhaseView(props: {
       );
     }
     const locked = phase === "LOCKED";
+    const started = !!questionStartedAt;
+    const interactive = !locked && started;
     const picked = myAnswer?.selected_option ?? null;
     return (
       <ParchmentFrame>
         <div className="space-y-6">
           <div className="text-center">
             <div className="text-goldleaf-300 tracking-widest text-xs mb-2">
-              {locked ? "受付終了" : "Ａ か Ｂ をお選びください"}
+              {locked
+                ? "受付終了"
+                : !started
+                  ? "まもなく開始します"
+                  : "Ａ か Ｂ をお選びください"}
             </div>
             <h2 className={`title-block ${themeSoft} text-xl sm:text-2xl`}>
               {question.title}
@@ -284,7 +290,7 @@ function PhaseView(props: {
             {question.description && (
               <p className={`mt-2 text-sm ${themeAccent}`}>{question.description}</p>
             )}
-            {!locked && (
+            {interactive && (
               <div className="mt-4 flex justify-center">
                 <Timer
                   startedAt={questionStartedAt}
@@ -304,8 +310,8 @@ function PhaseView(props: {
                 <button
                   key={opt}
                   type="button"
-                  onClick={() => !locked && onPick(opt)}
-                  disabled={locked || submitting}
+                  onClick={() => interactive && onPick(opt)}
+                  disabled={!interactive || submitting}
                   className={`ab-cube ab-cube-${opt} aspect-square w-full disabled:cursor-not-allowed disabled:opacity-70 ${
                     selected ? "ab-cube-selected" : ""
                   }`}
@@ -342,9 +348,11 @@ function PhaseView(props: {
           <div className={`text-center text-base font-bold ${themeAccent}`}>
             {locked
               ? "回答は締め切られました。"
-              : picked
-                ? `「${picked}」を選択中（変更も可能です）`
-                : "Ａ か Ｂ をタップ"}
+              : !started
+                ? "司会者の合図をお待ちください…"
+                : picked
+                  ? `「${picked}」を選択中（変更も可能です）`
+                  : "Ａ か Ｂ をタップ"}
           </div>
         </div>
       </ParchmentFrame>
