@@ -411,7 +411,7 @@ function RankPyramid({ participants }: { participants: Participant[] }) {
         <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
           ◆ 現 在 の 格 付 け ◆
         </div>
-        <h1 className="title-block text-gold text-4xl">格 序 列</h1>
+        <h1 className="font-display text-goldleaf-300 text-4xl">格 序 列</h1>
       </div>
       <div className="flex-1 flex flex-col gap-2">
         {byLevel.map(({ level, members }) => (
@@ -488,7 +488,7 @@ function FinalView({ participants }: { participants: Participant[] }) {
                   alt=""
                   className="w-44 h-44 mx-auto rounded-full border-4 border-goldleaf-300"
                 />
-                <div className="mt-3 title-block text-gold text-3xl">{p.display_name}</div>
+                <div className="mt-3 font-display text-goldleaf-300 text-3xl">{p.display_name}</div>
                 <div className="text-goldleaf-300 text-sm">正解数 {p.correct_count}</div>
               </div>
             ))}

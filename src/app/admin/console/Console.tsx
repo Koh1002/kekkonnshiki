@@ -239,7 +239,7 @@ export function AdminConsole() {
             <div className="font-display tracking-[0.3em] text-goldleaf-300 text-xs">
               ◆ MC CONSOLE ◆
             </div>
-            <h1 className="title-block text-gold text-2xl sm:text-3xl">
+            <h1 className="font-display text-goldleaf-300 text-2xl sm:text-3xl">
               一般人格付けチェック・進行卓
             </h1>
           </div>
@@ -256,7 +256,7 @@ export function AdminConsole() {
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <div className="text-goldleaf-300 text-xs tracking-widest">現在のフェーズ</div>
-              <div className="title-block text-goldleaf-200 text-3xl">
+              <div className="font-display text-goldleaf-300leaf-200 text-3xl">
                 {PHASE_LABEL[phase]}
               </div>
               {currentQuestion && (

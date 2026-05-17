@@ -247,7 +247,7 @@ function PhaseView(props: {
           <div className="font-display text-goldleaf-300 tracking-widest text-xs animate-shimmer">
             ◆ STAND BY ◆
           </div>
-          <h2 className="title-block text-gold text-2xl">
+          <h2 className="font-display text-goldleaf-300 text-2xl">
             まもなく開始です
           </h2>
           <p className="text-goldleaf-100 text-sm leading-relaxed">
@@ -374,7 +374,7 @@ function PhaseView(props: {
           <div className="font-display text-goldleaf-300 tracking-widest text-xs animate-shimmer">
             ◆ 投 票 結 果 ◆
           </div>
-          <h2 className="title-block text-gold text-2xl">集計発表中…</h2>
+          <h2 className="font-display text-goldleaf-300 text-2xl">集計発表中…</h2>
           {picked ? (
             <div className={`ab-cube ab-cube-${picked} mx-auto w-32 h-32`}>
               <span className="text-[5rem] leading-none">{picked}</span>
@@ -416,7 +416,7 @@ function PhaseView(props: {
           <div className="font-display text-goldleaf-300 tracking-widest text-xs animate-shimmer">
             ◆ 正 解 発 表 ◆
           </div>
-          <h2 className="title-block text-gold text-2xl">正解は…</h2>
+          <h2 className="font-display text-goldleaf-300 text-2xl">正解は…</h2>
           {correct && (
             <div className={`ab-cube ab-cube-${correct} mx-auto w-40 h-40 animate-shimmer`}>
               <span className="text-[7rem] leading-none">{correct}</span>
@@ -467,7 +467,7 @@ function PhaseView(props: {
           <div className="font-display text-goldleaf-300 tracking-widest text-xs animate-shimmer">
             ◆ 格 変 動 ◆
           </div>
-          <h2 className="title-block text-gold text-2xl">格の変動</h2>
+          <h2 className="font-display text-goldleaf-300 text-2xl">格の変動</h2>
           <div className="flex items-center justify-around gap-2 pt-2">
             <div className="flex flex-col items-center opacity-70">
               <img
@@ -532,9 +532,9 @@ function FinalCard({
             <div className="font-display text-goldleaf-300 tracking-widest text-xs animate-shimmer">
               ◆ FINAL RESULT ◆
             </div>
-            <h2 className="title-block text-gold text-2xl">最 終 格 付 け</h2>
+            <h2 className="font-display text-goldleaf-300 text-2xl">最 終 格 付 け</h2>
             <div className="text-goldleaf-300 text-xl">❖ ─ ✦ ─ ❖</div>
-            <div className="title-block text-gold text-xl">{pname || "ゲスト"} 様</div>
+            <div className="font-display text-goldleaf-300 text-xl">{pname || "ゲスト"} 様</div>
             <div className={`mx-auto inline-block p-4 rounded-full border-4 ${themeFrame} ${themeSurface} ${isKing ? "animate-seal" : ""}`}>
               <img
                 src={rankIconPath(me.rank_level)}
@@ -542,7 +542,7 @@ function FinalCard({
                 className="w-36 h-36 rounded-full"
               />
             </div>
-            <div className={`text-4xl title-block text-gold`}>
+            <div className={`text-4xl font-display text-goldleaf-300`}>
               {RANK_NAMES[me.rank_level]}
             </div>
             <div className={`text-sm ${themeAccent}`}>
