@@ -267,19 +267,35 @@ function OptionCard({
   label: string;
   image: string | null;
 }) {
+  // 画像がある時はA/Bキューブを小さく、画像を大きく下に。
+  // 画像が無い時は従来どおりA/Bを大きく見せる。
   return (
-    <div className="flex flex-col items-center justify-center text-center gap-4">
-      <div className={`ab-cube ab-cube-${letter} w-48 h-48 sm:w-64 sm:h-64`}>
-        <span className="text-[10rem] sm:text-[14rem] leading-none">{letter}</span>
+    <div className="flex flex-col items-center justify-center text-center gap-4 min-h-0">
+      <div
+        className={`ab-cube ab-cube-${letter} shrink-0 ${
+          image
+            ? "w-24 h-24 sm:w-28 sm:h-28"
+            : "w-48 h-48 sm:w-64 sm:h-64"
+        }`}
+      >
+        <span
+          className={`leading-none ${
+            image ? "text-[4rem] sm:text-[5rem]" : "text-[10rem] sm:text-[14rem]"
+          }`}
+        >
+          {letter}
+        </span>
       </div>
       {image && (
         <img
           src={image}
           alt=""
-          className="max-h-56 object-contain rounded border-2 border-goldleaf-400"
+          className="max-h-[52vh] max-w-full object-contain rounded-lg border-4 border-goldleaf-400 shadow-[0_0_24px_rgba(240,198,59,0.4)]"
         />
       )}
-      <div className="text-goldleaf-50 text-2xl sm:text-3xl leading-snug font-bold">{label}</div>
+      <div className="text-goldleaf-50 text-xl sm:text-2xl leading-snug font-bold">
+        {label}
+      </div>
     </div>
   );
 }

@@ -273,6 +273,7 @@ function PhaseView(props: {
     const started = !!questionStartedAt;
     const interactive = !locked && started;
     const picked = myAnswer?.selected_option ?? null;
+    const hasImages = !!(question.option_a_image || question.option_b_image);
     return (
       <ParchmentFrame>
         <div className="space-y-6">
@@ -303,8 +304,6 @@ function PhaseView(props: {
 
           <div className="grid grid-cols-2 gap-3">
             {(["A", "B"] as const).map((opt) => {
-              const label = opt === "A" ? question.option_a_label : question.option_b_label;
-              const img = opt === "A" ? question.option_a_image : question.option_b_image;
               const selected = picked === opt;
               return (
                 <button
@@ -312,17 +311,25 @@ function PhaseView(props: {
                   type="button"
                   onClick={() => interactive && onPick(opt)}
                   disabled={!interactive || submitting}
-                  className={`ab-cube ab-cube-${opt} aspect-square w-full disabled:cursor-not-allowed disabled:opacity-70 ${
+                  className={`ab-cube ab-cube-${opt} w-full disabled:cursor-not-allowed disabled:opacity-70 ${
                     selected ? "ab-cube-selected" : ""
-                  }`}
+                  } ${hasImages ? "h-20 sm:h-24" : "aspect-square"}`}
                 >
-                  <span className="text-[6rem] sm:text-[8rem] leading-none">{opt}</span>
+                  <span
+                    className={`leading-none ${
+                      hasImages
+                        ? "text-[3.5rem] sm:text-[4rem]"
+                        : "text-[6rem] sm:text-[8rem]"
+                    }`}
+                  >
+                    {opt}
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          {/* 選択肢の説明（画像/テキスト） */}
+          {/* 選択肢の説明（画像/テキスト）。画像がある時は大きく見せる */}
           <div className="grid grid-cols-2 gap-3">
             {(["A", "B"] as const).map((opt) => {
               const label = opt === "A" ? question.option_a_label : question.option_b_label;
@@ -336,7 +343,7 @@ function PhaseView(props: {
                     <img
                       src={img}
                       alt=""
-                      className="w-full h-40 sm:h-48 object-contain rounded border border-goldleaf-500/30 mb-2 bg-velvet-900"
+                      className="w-full h-56 sm:h-72 object-contain rounded border border-goldleaf-500/30 mb-2 bg-velvet-900"
                     />
                   )}
                   <div className="text-goldleaf-50 text-sm leading-snug">{label}</div>
