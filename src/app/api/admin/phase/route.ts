@@ -13,13 +13,15 @@ type Action =
   | "reveal"
   | "applyRank"
   | "next"
-  | "reset";
+  | "reset"
+  | "setPhase";
 
 export async function POST(req: Request) {
   if (!isAdmin()) {
     return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
   }
-  const { action } = (await req.json()) as { action?: Action };
+  const body = (await req.json()) as { action?: Action; phase?: string };
+  const { action } = body;
   if (!action) {
     return NextResponse.json({ error: "actionが必要です" }, { status: 400 });
   }
@@ -283,6 +285,41 @@ export async function POST(req: Request) {
         question_started_at: null,
         updated_at: new Date().toISOString(),
       });
+      return NextResponse.json({ ok: true });
+    }
+
+    case "setPhase": {
+      // 緊急用：ガード無しで任意のフェーズへ強制移行（詰まり防止）
+      const target = body.phase;
+      const allowed = [
+        "LOBBY",
+        "QUESTION",
+        "LOCKED",
+        "COUNT",
+        "REVEAL",
+        "RANK_UPDATE",
+        "FINAL",
+      ];
+      if (!target || !allowed.includes(target)) {
+        return NextResponse.json(
+          { error: "phase の指定が不正です" },
+          { status: 400 }
+        );
+      }
+      const patch: Record<string, unknown> = {
+        phase: target,
+        updated_at: new Date().toISOString(),
+      };
+      // QUESTION より手前へ戻す時は正解情報をクリアして整合性を保つ
+      if (target === "LOBBY" || target === "QUESTION" || target === "LOCKED" || target === "COUNT") {
+        patch.revealed_correct_option = null;
+        patch.revealed_commentary = null;
+      }
+      if (target === "LOBBY") {
+        patch.current_question_id = null;
+        patch.question_started_at = null;
+      }
+      await stateRef.update(patch);
       return NextResponse.json({ ok: true });
     }
   }

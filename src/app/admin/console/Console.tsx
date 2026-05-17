@@ -29,6 +29,7 @@ export function AdminConsole() {
   const [questions, setQuestions] = useState<AdminQuestion[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showEmergency, setShowEmergency] = useState(false);
 
   async function loadQuestions() {
     const res = await fetch("/api/admin/question", { cache: "no-store" });
@@ -96,7 +97,7 @@ export function AdminConsole() {
     return activeQuestions.some((q) => q.order_index > currentQuestion.order_index);
   }, [activeQuestions, currentQuestion]);
 
-  async function act(action: string) {
+  async function act(action: string, extra?: Record<string, unknown>) {
     if (busy) return;
     setBusy(true);
     setError(null);
@@ -104,7 +105,7 @@ export function AdminConsole() {
       const res = await fetch("/api/admin/phase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, ...extra }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "操作に失敗しました");
@@ -297,6 +298,52 @@ export function AdminConsole() {
                 {a.label}
               </button>
             ))}
+          </div>
+
+          {/* 緊急操作：詰まった時にどのフェーズへも強制移行できる */}
+          <div className="mt-4 pt-3 border-t border-goldleaf-500/20">
+            <button
+              onClick={() => setShowEmergency((v) => !v)}
+              className="text-goldleaf-300 text-xs underline underline-offset-4"
+            >
+              {showEmergency ? "▲ 緊急操作を隠す" : "▼ 緊急操作（フェーズ手動変更）"}
+            </button>
+            {showEmergency && (
+              <div className="mt-3">
+                <p className="text-goldleaf-200 text-xs mb-2">
+                  進行が詰まった時の復旧用。任意のフェーズへ強制移行します（通常は使いません）。
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {(
+                    [
+                      ["LOBBY", "参加受付"],
+                      ["QUESTION", "出題中"],
+                      ["LOCKED", "回答締切"],
+                      ["COUNT", "投票数発表"],
+                      ["REVEAL", "正解発表"],
+                      ["RANK_UPDATE", "格変動"],
+                      ["FINAL", "最終結果"],
+                    ] as const
+                  ).map(([ph, label]) => (
+                    <button
+                      key={ph}
+                      onClick={() => {
+                        if (!confirm(`フェーズを「${label}」に強制変更しますか？`)) return;
+                        act("setPhase", { phase: ph });
+                      }}
+                      disabled={busy}
+                      className={`px-3 py-2 rounded border text-sm disabled:opacity-40 ${
+                        phase === ph
+                          ? "border-goldleaf-300 bg-goldleaf-500/20 text-goldleaf-100"
+                          : "border-goldleaf-500/40 text-goldleaf-200 hover:bg-goldleaf-500/10"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
