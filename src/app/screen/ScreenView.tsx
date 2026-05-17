@@ -195,7 +195,7 @@ function QuestionView({
         <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
           ◆ 第 {question.order_index} 問 ◆
         </div>
-        <h1 className="title-block text-gold text-4xl sm:text-6xl mt-2">
+        <h1 className="text-goldleaf-50 font-bold text-4xl sm:text-6xl mt-2 leading-snug">
           {question.title}
         </h1>
         {question.description && (
@@ -328,7 +328,7 @@ function AnswerStage({
         <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
           {header}
         </div>
-        <h1 className="title-block text-gold text-3xl sm:text-5xl mt-2">
+        <h1 className="text-goldleaf-50 font-bold text-3xl sm:text-5xl mt-2 leading-snug">
           {question.title}
         </h1>
       </div>
