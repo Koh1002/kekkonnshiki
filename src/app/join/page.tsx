@@ -8,18 +8,23 @@ export default function JoinPage() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 同名警告。表示中はもう一度押すと force=true でそのまま登録する。
+  const [dupWarn, setDupWarn] = useState<string | null>(null);
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
+  async function doJoin(force: boolean) {
     setError(null);
     setLoading(true);
     try {
       const res = await fetch("/api/join", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ display_name: name.trim() }),
+        body: JSON.stringify({ display_name: name.trim(), force }),
       });
       const data = await res.json();
+      if (res.status === 409 && data.duplicate) {
+        setDupWarn(data.message ?? "同じお名前の方がすでに参加されています。");
+        return;
+      }
       if (!res.ok) throw new Error(data.error ?? "参加登録に失敗しました");
       if (data.role === "participant") {
         localStorage.setItem("participant_id", data.id);
@@ -31,6 +36,12 @@ export default function JoinPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    // 警告が出ている状態でもう一度押した＝このまま登録（force）
+    doJoin(dupWarn !== null);
   }
 
   return (
@@ -51,7 +62,11 @@ export default function JoinPage() {
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              // 名前を変えたら警告をリセットして再チェックさせる
+              if (dupWarn) setDupWarn(null);
+            }}
             placeholder="例：山田 太郎"
             maxLength={32}
             required
@@ -59,6 +74,13 @@ export default function JoinPage() {
             autoCapitalize="off"
             className="w-full text-center text-2xl font-bold rounded-md bg-velvet-950 border-2 border-goldleaf-400 text-goldleaf-50 py-4 px-4 focus:outline-none focus:border-goldleaf-200"
           />
+          {dupWarn && (
+            <div className="text-amber-100 text-sm bg-amber-900/40 border-2 border-amber-400/70 rounded p-3 leading-relaxed">
+              ⚠ {dupWarn}
+              <br />
+              名前を変える場合は上の欄を修正してください。このまま参加する場合はもう一度ボタンを押してください。
+            </div>
+          )}
           {error && (
             <div className="text-rose-200 text-sm bg-rose-900/40 border border-rose-500/40 rounded p-2">
               {error}
@@ -69,7 +91,11 @@ export default function JoinPage() {
             disabled={loading || !name.trim()}
             className="btn-big w-full rounded-md border-2 border-goldleaf-300 bg-gradient-to-b from-goldleaf-500 to-goldleaf-700 hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed text-velvet-950 font-black transition-all"
           >
-            {loading ? "登録中…" : "席につく"}
+            {loading
+              ? "登録中…"
+              : dupWarn
+                ? "このまま参加する"
+                : "席につく"}
           </button>
         </form>
       </ParchmentFrame>

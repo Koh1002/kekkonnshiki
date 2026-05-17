@@ -7,7 +7,10 @@ export const dynamic = "force-dynamic";
 const ROLE_COOKIE_MAX_AGE = 60 * 60 * 24;
 
 export async function POST(req: Request) {
-  const { display_name } = (await req.json()) as { display_name?: string };
+  const { display_name, force } = (await req.json()) as {
+    display_name?: string;
+    force?: boolean;
+  };
   const name = (display_name ?? "").trim();
   if (!name) {
     return NextResponse.json({ error: "お名前を入力してください" }, { status: 400 });
@@ -50,6 +53,26 @@ export async function POST(req: Request) {
   // 参加初動でも gameState/current を確実に作っておく（screen 経由含む）
   await ensureGameState();
   const db = adminDb();
+
+  // 同名チェック：既に同じ表示名がいたら force=true でない限り警告を返す
+  if (!force) {
+    const dup = await db
+      .collection("participants")
+      .where("display_name", "==", name)
+      .limit(1)
+      .get();
+    if (!dup.empty) {
+      return NextResponse.json(
+        {
+          duplicate: true,
+          message:
+            "同じお名前の方がすでに参加されています。区別のため、ニックネームや苗字＋下の名前などに変えていただくのがおすすめです。",
+        },
+        { status: 409 }
+      );
+    }
+  }
+
   const now = new Date().toISOString();
   const docRef = await db.collection("participants").add({
     display_name: name,
