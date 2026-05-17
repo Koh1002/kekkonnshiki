@@ -139,9 +139,9 @@ export async function POST(req: Request) {
   for (const q of WEDDING_QUESTIONS) {
     const ref = db.collection("questions").doc();
     batch.set(ref, {
+      // ...q が持つ option_a_image / option_b_image をそのまま使う。
+      // （以前はここで null 上書きしていたため Q2/Q3 の画像が消えていた）
       ...q,
-      option_a_image: null,
-      option_b_image: null,
       created_at: now,
     });
   }
