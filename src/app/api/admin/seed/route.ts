@@ -10,26 +10,26 @@ export const dynamic = "force-dynamic";
 // correct_option は規約として「Ａ＝正解」で配置。当日までに画像を A/B に割り当てる際、
 // 正解を Ａ 側に置けば編集不要、Ｂ 側に置きたい場合は管理画面で正解を Ｂ に切り替え可能。
 const WEDDING_QUESTIONS = [
-  // 第1問：飲食 食べ比べ（ウォーミングアップ）
+  // 第1問：チョコレート食べ比べ（ウォーミングアップ）
   {
     order_index: 1,
     is_active: true,
-    title: "本当に高級なのはどちら？",
-    description: "ウォーミングアップ。お料理の目利き、見せてください。",
+    title: "プロが作ったチョコレートはどちら？",
+    description: "※比較対象は配布します。よく味わってお選びください。",
     option_a_label: "Ａ",
     option_b_label: "Ｂ",
     correct_option: "A",
     commentary:
-      "正解は ＿＿。＊当日の飲食物に合わせて解説を更新してください＊",
+      "正解は ＿＿。＊当日のチョコに合わせて解説を更新してください＊",
     timer_seconds: 30,
   },
   // 第2問：たまごっち vs そだてるっち
   {
     order_index: 2,
     is_active: true,
-    title: "たまごっちはどちら？",
+    title: "本物のたまごっちのキャラクターはどちら？",
     description:
-      "片方はたまごっち、もう片方は新郎オリジナルキャラ「そだてるっち」。見抜けますか？",
+      "片方は本物のたまごっち、もう片方は新郎オリジナルキャラ「そだてるっち」。見抜けますか？",
     option_a_label: "Ａ",
     option_b_label: "Ｂ",
     option_a_image: "/questions/q2_a.png",
@@ -59,9 +59,9 @@ const WEDDING_QUESTIONS = [
   {
     order_index: 4,
     is_active: true,
-    title: "本物のティファニーはどちら？",
+    title: "新郎が誕生日にあげたネックレスはどちら？",
     description:
-      "新郎から新婦への誕生日プレゼント。本物のティファニーのネックレスはどちら？もう片方はプチプラです。",
+      "新郎から新婦への誕生日プレゼント。本物はどちら？もう片方はプチプラです。",
     option_a_label: "Ａ",
     option_b_label: "Ｂ",
     correct_option: "A",
@@ -75,7 +75,7 @@ const WEDDING_QUESTIONS = [
     is_active: true,
     title: "プロの演奏はどちら？",
     description:
-      "司会の合図で Ａ → Ｂ の順に会場で音源を再生します。耳を澄まして聴き比べを。",
+      "※これから会場で Ａ → Ｂ の順に流します。耳を澄ましてよく聞いてください。",
     option_a_label: "Ａ（先に再生）",
     option_b_label: "Ｂ（後に再生）",
     correct_option: "A",

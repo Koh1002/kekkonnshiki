@@ -4,6 +4,7 @@ export const PHASES: Phase[] = [
   "LOBBY",
   "QUESTION",
   "LOCKED",
+  "COUNT",
   "REVEAL",
   "RANK_UPDATE",
   "FINAL",
@@ -12,7 +13,8 @@ export const PHASES: Phase[] = [
 export const PHASE_LABEL: Record<Phase, string> = {
   LOBBY: "参加受付",
   QUESTION: "出題中",
-  LOCKED: "回答締切",
+  LOCKED: "回答締切（A・B提示）",
+  COUNT: "投票数の発表",
   REVEAL: "正解発表",
   RANK_UPDATE: "格変動",
   FINAL: "最終結果",
@@ -31,7 +33,9 @@ export function nextPhaseOf(
     case "QUESTION":
       return { next: "LOCKED", label: "回答を締め切る" };
     case "LOCKED":
-      return { next: "REVEAL", label: "答えを表示する" };
+      return { next: "COUNT", label: "投票数を表示する" };
+    case "COUNT":
+      return { next: "REVEAL", label: "正解を発表する" };
     case "REVEAL":
       return { next: "RANK_UPDATE", label: "格変動を表示する" };
     case "RANK_UPDATE":

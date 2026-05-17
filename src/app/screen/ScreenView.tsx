@@ -88,24 +88,34 @@ export function ScreenView() {
       {state.phase === "LOBBY" && (
         <LobbyView joinUrl={joinUrl} participants={participants} />
       )}
-      {(state.phase === "QUESTION" || state.phase === "LOCKED") && question && (
+      {state.phase === "QUESTION" && question && (
         <QuestionView
           question={question}
           answered={currentAnswers.length}
           total={total}
-          locked={state.phase === "LOCKED"}
+          locked={false}
           startedAt={state.question_started_at}
         />
       )}
-      {state.phase === "REVEAL" && question && (
-        <RevealView
-          question={question}
-          correct={state.revealed_correct_option}
-          commentary={state.revealed_commentary}
-          votesA={votesA}
-          votesB={votesB}
-        />
-      )}
+      {(state.phase === "LOCKED" ||
+        state.phase === "COUNT" ||
+        state.phase === "REVEAL") &&
+        question && (
+          <AnswerStage
+            question={question}
+            mode={
+              state.phase === "LOCKED"
+                ? "locked"
+                : state.phase === "COUNT"
+                  ? "count"
+                  : "reveal"
+            }
+            correct={state.revealed_correct_option}
+            commentary={state.revealed_commentary}
+            votesA={votesA}
+            votesB={votesB}
+          />
+        )}
       {state.phase === "RANK_UPDATE" && (
         <RankPyramid participants={participants} />
       )}
@@ -242,110 +252,102 @@ function OptionCard({
   );
 }
 
-function RevealView({
+// 回答締切→投票数→正解発表 の3段階を1コンポーネントで表現。
+// mode="locked": A/B 大表示のみ（数字も正解も伏せる）
+// mode="count" : A/B + それぞれの投票人数
+// mode="reveal": 正解側を強調、不正解側をグレーに。画像と解説も表示
+function AnswerStage({
   question,
+  mode,
   correct,
   commentary,
   votesA,
   votesB,
 }: {
   question: PublicQuestion;
+  mode: "locked" | "count" | "reveal";
   correct: "A" | "B" | null;
   commentary: string | null;
   votesA: number;
   votesB: number;
 }) {
-  const total = Math.max(1, votesA + votesB);
+  const showCount = mode === "count" || mode === "reveal";
+  const showReveal = mode === "reveal";
   const correctImage =
     correct === "A"
       ? question.option_a_image
       : correct === "B"
         ? question.option_b_image
         : null;
-  const correctLabel =
-    correct === "A"
-      ? question.option_a_label
-      : correct === "B"
-        ? question.option_b_label
-        : null;
+  const header =
+    mode === "locked"
+      ? "◆ 回 答 締 切 ◆"
+      : mode === "count"
+        ? "◆ 投 票 結 果 ◆"
+        : "◆ 正 解 発 表 ◆";
+
+  function Cube({ letter, votes }: { letter: "A" | "B"; votes: number }) {
+    const isCorrect = showReveal && correct === letter;
+    const isWrong = showReveal && correct !== null && correct !== letter;
+    return (
+      <div
+        className={`flex flex-col items-center justify-center gap-3 transition-all duration-500 ${
+          isWrong ? "opacity-40 grayscale" : ""
+        } ${isCorrect ? "scale-105" : ""}`}
+      >
+        <div
+          className={`ab-cube ab-cube-${letter} w-40 h-40 lg:w-56 lg:h-56 ${
+            isCorrect ? "animate-shimmer ring-8 ring-goldleaf-300" : ""
+          }`}
+        >
+          <span className="text-[7rem] lg:text-[10rem] leading-none">{letter}</span>
+        </div>
+        {showCount && (
+          <div
+            className={`text-2xl lg:text-4xl font-black ${
+              isWrong ? "text-goldleaf-100" : "text-goldleaf-200"
+            }`}
+          >
+            {votes}名
+          </div>
+        )}
+        {showReveal && isCorrect && correctImage && (
+          <img
+            src={correctImage}
+            alt=""
+            className="max-h-[34vh] max-w-full object-contain rounded-lg border-4 border-goldleaf-300 shadow-[0_0_36px_rgba(240,198,59,0.6)]"
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col p-6 sm:p-10">
-      {/* 上段：ヘッダー + 問題タイトル */}
       <div className="text-center mb-4 shrink-0">
         <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
-          ◆ 正 解 発 表 ◆
+          {header}
         </div>
-        <h1 className="title-block text-gold text-3xl sm:text-4xl mt-2">
+        <h1 className="title-block text-gold text-3xl sm:text-5xl mt-2">
           {question.title}
         </h1>
       </div>
-      {/* 中段：左にA/Bキューブ＋画像、右に解説＋投票バー（4:3 横長前提） */}
-      <div className="flex-1 grid grid-cols-2 gap-6 sm:gap-10 items-center min-h-0">
-        <div className="flex flex-col items-center justify-center gap-3 min-h-0">
-          {correct && (
-            <div
-              className={`ab-cube ab-cube-${correct} w-44 h-44 lg:w-56 lg:h-56 animate-shimmer shrink-0`}
-            >
-              <span className="text-[8rem] lg:text-[11rem] leading-none">{correct}</span>
-            </div>
-          )}
-          {correctImage && (
-            <img
-              src={correctImage}
-              alt=""
-              className="max-h-[42vh] max-w-full object-contain rounded-lg border-4 border-goldleaf-300 shadow-[0_0_36px_rgba(240,198,59,0.55)]"
-            />
-          )}
-          {correctLabel && (
-            <div className="text-goldleaf-50 text-xl lg:text-2xl font-bold">
-              {correctLabel}
-            </div>
-          )}
-        </div>
-        <div className="flex flex-col justify-center gap-5 min-h-0">
-          {commentary && (
-            <p className="text-goldleaf-50 text-xl lg:text-2xl leading-relaxed bg-velvet-900/80 border-2 border-goldleaf-400 rounded-lg p-5">
-              {commentary}
-            </p>
-          )}
-          <div className="grid grid-cols-2 gap-4">
-            <VoteBar letter="A" count={votesA} total={total} highlight={correct === "A"} />
-            <VoteBar letter="B" count={votesB} total={total} highlight={correct === "B"} />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
-function VoteBar({
-  letter,
-  count,
-  total,
-  highlight,
-}: {
-  letter: string;
-  count: number;
-  total: number;
-  highlight: boolean;
-}) {
-  const pct = Math.round((count / total) * 100);
-  return (
-    <div
-      className={`rounded border p-4 ${
-        highlight ? "border-goldleaf-300 bg-goldleaf-500/20" : "border-goldleaf-500/40 bg-black/30"
-      }`}
-    >
-      <div className="flex items-baseline justify-between">
-        <span className="font-display text-4xl text-goldleaf-300">{letter}</span>
-        <span className="text-goldleaf-100 text-2xl">{count}名（{pct}%）</span>
+      <div className="flex-1 grid grid-cols-2 gap-8 sm:gap-16 items-center justify-items-center min-h-0">
+        <Cube letter="A" votes={votesA} />
+        <Cube letter="B" votes={votesB} />
       </div>
-      <div className="mt-2 h-4 bg-black/40 rounded overflow-hidden">
-        <div
-          className="h-full bg-goldleaf-400"
-          style={{ width: `${pct}%`, transition: "width 0.8s" }}
-        />
-      </div>
+
+      {mode === "locked" && (
+        <div className="text-center text-goldleaf-200 text-2xl sm:text-3xl mt-4 animate-shimmer">
+          さあ、結果やいかに…？
+        </div>
+      )}
+      {showReveal && commentary && (
+        <p className="mx-auto mt-4 max-w-4xl text-goldleaf-50 text-xl lg:text-2xl leading-relaxed bg-velvet-900/80 border-2 border-goldleaf-400 rounded-lg p-5 text-center">
+          {commentary}
+        </p>
+      )}
     </div>
   );
 }

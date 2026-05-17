@@ -198,7 +198,10 @@ export function AdminConsole() {
       actions.push({ key: "lock", label: "回答を締め切る", primary: true });
       break;
     case "LOCKED":
-      actions.push({ key: "reveal", label: "答えを表示する", primary: true });
+      actions.push({ key: "tally", label: "投票数を表示する", primary: true });
+      break;
+    case "COUNT":
+      actions.push({ key: "reveal", label: "正解を発表する", primary: true });
       break;
     case "REVEAL":
       actions.push({ key: "applyRank", label: "格変動を表示する", primary: true });

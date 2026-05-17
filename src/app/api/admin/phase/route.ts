@@ -6,7 +6,14 @@ import { clampRank } from "@/lib/ranks";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type Action = "start" | "lock" | "reveal" | "applyRank" | "next" | "reset";
+type Action =
+  | "start"
+  | "lock"
+  | "tally"
+  | "reveal"
+  | "applyRank"
+  | "next"
+  | "reset";
 
 export async function POST(req: Request) {
   if (!isAdmin()) {
@@ -126,10 +133,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    case "reveal": {
+    case "tally": {
       if (state.phase !== "LOCKED") {
         return NextResponse.json(
           { error: `LOCKEDではありません (現在: ${state.phase})` },
+          { status: 409 }
+        );
+      }
+      // 投票数の発表（A/Bそれぞれの人数を表示）。正解はまだ伏せたまま。
+      await stateRef.update({
+        phase: "COUNT",
+        updated_at: new Date().toISOString(),
+      });
+      return NextResponse.json({ ok: true });
+    }
+
+    case "reveal": {
+      if (state.phase !== "COUNT") {
+        return NextResponse.json(
+          { error: `COUNTではありません (現在: ${state.phase})` },
           { status: 409 }
         );
       }

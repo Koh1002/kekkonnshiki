@@ -351,6 +351,33 @@ function PhaseView(props: {
     );
   }
 
+  if (phase === "COUNT") {
+    const picked = myAnswer?.selected_option ?? null;
+    return (
+      <ParchmentFrame>
+        <div className="text-center space-y-5">
+          <div className="font-display text-goldleaf-300 tracking-widest text-xs animate-shimmer">
+            ◆ 投 票 結 果 ◆
+          </div>
+          <h2 className="title-block text-gold text-2xl">集計発表中…</h2>
+          {picked ? (
+            <div className={`ab-cube ab-cube-${picked} mx-auto w-32 h-32`}>
+              <span className="text-[5rem] leading-none">{picked}</span>
+            </div>
+          ) : (
+            <p className="text-goldleaf-100 text-base">あなたは未回答です</p>
+          )}
+          <p className="text-goldleaf-100 text-base leading-relaxed">
+            {picked ? `あなたの回答は「${picked}」` : ""}
+            <br />
+            投票数は<strong className="text-goldleaf-200">会場のスクリーン</strong>でご覧ください。
+          </p>
+          <div className="inline-block animate-seal text-goldleaf-300 text-3xl">❖</div>
+        </div>
+      </ParchmentFrame>
+    );
+  }
+
   if (phase === "REVEAL") {
     const correct = revealed;
     const picked = myAnswer?.selected_option ?? null;

@@ -11,6 +11,7 @@
 | ドキュメント | 内容 |
 |---|---|
 | 🎬 [当日ガイド.md](./当日ガイド.md) | **当日 迷わないための立ち上げ手順** |
+| 🎤 [司会者マニュアル.md](./司会者マニュアル.md) | **司会者（admin）の1問ごとの進行台本** |
 | [docs/FIREBASE_SETUP.md](./docs/FIREBASE_SETUP.md) | データベース構築の手順（10〜15分） |
 | [docs/VERCEL_SETUP.md](./docs/VERCEL_SETUP.md) | 本番公開＆環境変数設定の手順（10〜15分） |
 | [public/questions/README.md](./public/questions/README.md) | 問題画像の配置ルール |

@@ -2,6 +2,7 @@ export type Phase =
   | "LOBBY"
   | "QUESTION"
   | "LOCKED"
+  | "COUNT"
   | "REVEAL"
   | "RANK_UPDATE"
   | "FINAL";
