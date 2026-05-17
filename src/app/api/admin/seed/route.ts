@@ -20,7 +20,7 @@ const WEDDING_QUESTIONS = [
     option_b_label: "Ｂ",
     correct_option: "A",
     commentary:
-      "正解は ＿＿。＊当日のチョコに合わせて解説を更新してください＊",
+      "正解は、自由が丘の割れチョコ専門店「チュベ・ド・ショコラ」のチョコ！ もう一方は、なんと新郎の手作りチョコでした。",
     timer_seconds: 30,
   },
   // 第2問：たまごっち vs そだてるっち
@@ -36,7 +36,7 @@ const WEDDING_QUESTIONS = [
     option_b_image: "/questions/q2_b.png",
     correct_option: "B",
     commentary:
-      "正解は Ｂ。Ａは新郎オリジナルの「そだてるっち」でした！",
+      "正解は、世界のアイドル歌手を目指すたまごっちキャラ「きらりっち」！ もう一方は、新郎が新婦のために作ったパクリゲーム「そだてるっち」のキャラクターでした。",
     timer_seconds: 30,
   },
   // 第3問：絵画（ルノワール vs 新婦祖父）
@@ -52,7 +52,7 @@ const WEDDING_QUESTIONS = [
     option_b_image: "/questions/q3_b_grandfather.jpeg",
     correct_option: "A",
     commentary:
-      "正解は Ａ（赤い花）。ルノワールの花の絵。Ｂは新婦のお祖父さまの作品で、ご家族にとってかけがえのない宝物です。",
+      "正解は（赤い花）、ルノワールの名作「アネモネ」！ もう一方は、絵を趣味にされていた新婦のお祖父さまが描いたパンジーの絵。ご家族にとってかけがえのない宝物です。",
     timer_seconds: 45,
   },
   // 第4問：アクセサリー（ティファニー vs プチプラ）
@@ -66,7 +66,7 @@ const WEDDING_QUESTIONS = [
     option_b_label: "Ｂ",
     correct_option: "A",
     commentary:
-      "正解は ＿＿。新婦の宝物、輝きが違います。",
+      "正解は、新郎が新婦の誕生日にプレゼントしたティファニーのネックレス！ もう一方は、千円ほどのプチプラでした。新婦の宝物、輝きが違いますね。",
     timer_seconds: 30,
   },
   // 第5問：音楽聞き比べ（音源は会場で別機材から再生）
