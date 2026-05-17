@@ -121,8 +121,10 @@ export async function POST(req: Request) {
       }
     }
     await batch.commit();
-    // 出題中だった可能性があるため gameState の current_question_id を念のためクリア
+    // 差し替え後は必ず参加受付(LOBBY)に戻す。
+    // これをしないと出題中のままフェーズが残り、「ゲーム開始」が押せず詰まる。
     await db.collection("gameState").doc("current").update({
+      phase: "LOBBY",
       current_question_id: null,
       revealed_correct_option: null,
       revealed_commentary: null,

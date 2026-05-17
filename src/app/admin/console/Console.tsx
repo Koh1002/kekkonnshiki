@@ -116,7 +116,10 @@ export function AdminConsole() {
     }
   }
 
-  // 制限時間切れで自動的に回答を締め切る
+  // 制限時間切れで自動的に回答を締め切る。
+  // カウントダウン開始ごとに question_started_at が変わるので、それをキーにする。
+  // （current_question_id をキーにすると「再募集」で同じ問題を再カウントした時に
+  //   自動締切が二度と発火しない不具合になる）
   const autoLockedRef = useRef<string | null>(null);
   const currentTimer = currentQuestion?.timer_seconds ?? 30;
   const remaining = useCountdown(
@@ -126,16 +129,15 @@ export function AdminConsole() {
   useEffect(() => {
     if (
       state?.phase === "QUESTION" &&
-      state.current_question_id &&
       state.question_started_at &&
       remaining <= 0 &&
-      autoLockedRef.current !== state.current_question_id
+      autoLockedRef.current !== state.question_started_at
     ) {
-      autoLockedRef.current = state.current_question_id;
+      autoLockedRef.current = state.question_started_at;
       act("lock");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [remaining, state?.phase, state?.current_question_id, state?.question_started_at]);
+  }, [remaining, state?.phase, state?.question_started_at]);
 
   async function toggleActive(q: AdminQuestion) {
     await fetch("/api/admin/question", {
