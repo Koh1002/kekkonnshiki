@@ -132,8 +132,9 @@ function LobbyView({
   participants: Participant[];
 }) {
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 gap-6 p-10">
-      <div className="flex flex-col items-center justify-center text-center space-y-6">
+    <div className="min-h-screen flex flex-col p-8 sm:p-10 gap-6">
+      {/* 上段：タイトル（横幅いっぱい・中央寄せ） */}
+      <div className="flex flex-col items-center text-center gap-3 shrink-0">
         <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
           ◆ FIRST CLASS CHECK ◆
         </div>
@@ -144,31 +145,50 @@ function LobbyView({
           </h1>
         </div>
         <p className="text-goldleaf-100 text-xl">
-          あなたは一流？<br />みんなでチェック！
+          あなたは一流？　みんなでチェック！
         </p>
-        <div className="bg-white p-6 rounded-lg shadow-2xl min-w-[320px] min-h-[320px] flex items-center justify-center border-4 border-goldleaf-400">
-          {joinUrl ? (
-            <QRCodeSVG value={joinUrl} size={320} level="M" includeMargin={false} />
-          ) : (
-            <span className="text-stone-600">読み込み中…</span>
-          )}
-        </div>
-        <div className="text-goldleaf-200 text-sm break-all">{joinUrl}</div>
       </div>
-      <div className="flex flex-col">
-        <h2 className="font-display text-goldleaf-300 tracking-widest mb-4 text-center">
-          本日の参列者（{participants.length}名）
-        </h2>
-        <div className="flex-1 overflow-hidden">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 content-start">
-            {participants.map((p) => (
-              <div
-                key={p.id}
-                className="animate-rise rounded-md border border-goldleaf-500/30 bg-black/40 py-2 px-3 text-goldleaf-100 text-center truncate"
-              >
-                {p.display_name}
-              </div>
-            ))}
+
+      {/* 下段：左にQR、右に参加者一覧（増えていく） */}
+      <div className="flex-1 grid grid-cols-[auto_1fr] gap-8 min-h-0">
+        <div className="flex flex-col items-center justify-center gap-3">
+          <div className="bg-white p-5 rounded-lg shadow-2xl flex items-center justify-center border-4 border-goldleaf-400">
+            {joinUrl ? (
+              <QRCodeSVG value={joinUrl} size={300} level="M" includeMargin={false} />
+            ) : (
+              <span className="text-stone-600 w-[300px] h-[300px] flex items-center justify-center">
+                読み込み中…
+              </span>
+            )}
+          </div>
+          <p className="text-goldleaf-100 text-lg font-bold">
+            QRからお名前で参加
+          </p>
+          <div className="text-goldleaf-200 text-xs break-all max-w-[320px] text-center">
+            {joinUrl}
+          </div>
+        </div>
+
+        <div className="flex flex-col min-h-0">
+          <h2 className="font-display text-goldleaf-300 tracking-widest mb-3 text-center text-2xl">
+            本日の参列者（{participants.length}名）
+          </h2>
+          <div className="flex-1 overflow-y-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2 content-start">
+              {participants.map((p) => (
+                <div
+                  key={p.id}
+                  className="animate-rise rounded-md border border-goldleaf-500/30 bg-black/40 py-2 px-3 text-goldleaf-50 text-center truncate text-lg"
+                >
+                  {p.display_name}
+                </div>
+              ))}
+              {participants.length === 0 && (
+                <div className="col-span-full text-goldleaf-200 text-center text-lg py-8">
+                  最初の参加者をお待ちしています…
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
