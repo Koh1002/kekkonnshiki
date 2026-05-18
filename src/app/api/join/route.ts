@@ -76,7 +76,7 @@ export async function POST(req: Request) {
   const now = new Date().toISOString();
   const docRef = await db.collection("participants").add({
     display_name: name,
-    rank_level: 3,
+    rank_level: 5,
     correct_count: 0,
     joined_at: now,
   });
@@ -85,7 +85,7 @@ export async function POST(req: Request) {
     redirect: "/play",
     id: docRef.id,
     display_name: name,
-    rank_level: 3,
+    rank_level: 5,
     correct_count: 0,
   });
 }

@@ -86,7 +86,7 @@ export async function POST(req: Request) {
     let batch = db.batch();
     let count = 0;
     for (const doc of snap.docs) {
-      batch.update(doc.ref, { rank_level: 3, correct_count: 0 });
+      batch.update(doc.ref, { rank_level: 5, correct_count: 0 });
       count++;
       if (count % 450 === 0) {
         await batch.commit();
@@ -263,7 +263,10 @@ export async function POST(req: Request) {
       for (const doc of partsSnap.docs) {
         const p = doc.data();
         const correct = correctMap.get(doc.id) === true;
-        const newRank = clampRank((p.rank_level as number) + (correct ? 1 : -1));
+        // 全員「一流(5)」スタート。正解は変動なし、不正解のみ1つ降格（下方向のみ）。
+        const newRank = correct
+          ? (p.rank_level as number)
+          : clampRank((p.rank_level as number) - 1);
         const newCount = (p.correct_count as number) + (correct ? 1 : 0);
         batch.update(doc.ref, { rank_level: newRank, correct_count: newCount });
         count++;

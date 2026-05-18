@@ -39,13 +39,13 @@ export default function Home() {
               <li className="flex gap-3">
                 <span className="font-display text-goldleaf-300 shrink-0 font-black">③</span>
                 <span>
-                  皆さま全員 <strong className="text-goldleaf-200">「普通の人」</strong> からスタート。正解で1つ昇格、不正解で1つ降格します。
+                  皆さま全員 <strong className="text-goldleaf-200">最高位「一流」</strong> からスタート。正解しても変動なし、<strong className="text-goldleaf-200">不正解だと1つ格が落ちます</strong>（下がる一方）。
                 </span>
               </li>
               <li className="flex gap-3">
                 <span className="font-display text-goldleaf-300 shrink-0 font-black">④</span>
                 <span>
-                  格は5段階。 一流 &gt; 二流 &gt; 普通の人 &gt; 三流 &gt; ご愛敬枠。最高位 <strong className="text-goldleaf-200">「一流」</strong> の座を目指しませ。
+                  格は5段階。 一流 &gt; 二流 &gt; 普通の人 &gt; 三流 &gt; ご愛敬枠。<strong className="text-goldleaf-200">「一流」を死守</strong>しませ。
                 </span>
               </li>
               <li className="flex gap-3">

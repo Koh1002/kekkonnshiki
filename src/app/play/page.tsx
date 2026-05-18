@@ -150,7 +150,7 @@ export default function PlayPage() {
     };
   }, [pid, resync]);
 
-  const theme = useMemo(() => RANK_THEMES[me?.rank_level ?? 3], [me?.rank_level]);
+  const theme = useMemo(() => RANK_THEMES[me?.rank_level ?? 5], [me?.rank_level]);
 
   async function submitAnswer(opt: "A" | "B") {
     if (!pid || !state?.current_question_id || submitting) return;
@@ -537,11 +537,9 @@ function PhaseView(props: {
             </div>
           </div>
           <p className={`text-sm font-bold ${themeAccent}`}>
-            {up
-              ? "格上げ！お見事です。"
-              : down
-                ? "格下げ…次の問題で取り返しましょう。"
-                : "現状維持。次に期待です。"}
+            {down
+              ? "格が落ちました…ここから死守！"
+              : "正解！格を守りきりました。"}
           </p>
         </div>
       </ParchmentFrame>

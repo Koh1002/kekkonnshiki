@@ -86,8 +86,12 @@ export function clampRank(level: number): number {
   return Math.round(level);
 }
 
+// 全員ここからスタート（一流）
+export const START_RANK = 5;
+
+// 正解は変動なし、不正解のみ1つ降格（下方向のみ）
 export function nextRank(current: number, correct: boolean): number {
-  return clampRank(current + (correct ? 1 : -1));
+  return correct ? clampRank(current) : clampRank(current - 1);
 }
 
 export function rankIconPath(level: number): string {
