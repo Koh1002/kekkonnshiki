@@ -64,6 +64,8 @@ const WEDDING_QUESTIONS = [
       "片方は高級ブランド品、もう片方はプチプラのリーズナブルなお値段！ 本物の輝きはどちら？",
     option_a_label: "Ａ",
     option_b_label: "Ｂ",
+    option_a_image: "/questions/q4_a.jpeg",
+    option_b_image: "/questions/q4_b.jpeg",
     correct_option: "A",
     commentary:
       "正解は、新郎が新婦の誕生日にプレゼントしたティファニーのネックレス！ もう一方は、千円ほどのプチプラでした。新婦の宝物、輝きが違いますね。",
