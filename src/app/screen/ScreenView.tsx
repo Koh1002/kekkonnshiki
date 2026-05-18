@@ -5,7 +5,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { collection, doc, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Answer, GameState, Participant, PublicQuestion } from "@/types/game";
-import { RANK_LATIN, RANK_NAMES, rankIconPath } from "@/lib/ranks";
+import { RANK_NAMES, rankIconPath } from "@/lib/ranks";
 import { Timer } from "@/components/Timer";
 import { ScreenshotButton } from "@/components/ScreenshotButton";
 
@@ -401,48 +401,59 @@ function AnswerStage({
 }
 
 function RankPyramid({ participants }: { participants: Participant[] }) {
+  const total = Math.max(1, participants.length);
   const byLevel = [5, 4, 3, 2, 1].map((lv) => ({
     level: lv,
-    members: participants.filter((p) => p.rank_level === lv),
+    count: participants.filter((p) => p.rank_level === lv).length,
   }));
   return (
     <div className="min-h-screen p-8 flex flex-col">
-      <div className="text-center mb-4">
+      <div className="text-center mb-6">
         <div className="font-display tracking-[0.4em] text-goldleaf-300 text-sm animate-shimmer">
           ◆ 現 在 の 格 付 け ◆
         </div>
-        <h1 className="font-display text-goldleaf-300 text-4xl">格 序 列</h1>
+        <h1 className="font-display text-goldleaf-300 text-4xl sm:text-5xl">
+          格 序 列
+        </h1>
       </div>
-      <div className="flex-1 flex flex-col gap-2">
-        {byLevel.map(({ level, members }) => (
-          <div
-            key={level}
-            className="flex items-center gap-4 border border-goldleaf-500/30 bg-black/30 rounded px-4 py-3"
-          >
-            <img
-              src={rankIconPath(level)}
-              alt=""
-              className="w-16 h-16 rounded-full border border-goldleaf-500/40"
-            />
-            <div className="w-40">
-              <div className="text-goldleaf-300 text-xs tracking-widest">
-                {RANK_LATIN[level]}
+      {/* 人数が増えても見やすいよう、各ランクの人数だけを大きく表示 */}
+      <div className="flex-1 flex flex-col gap-3 justify-center">
+        {byLevel.map(({ level, count }) => {
+          const pct = Math.round((count / total) * 100);
+          return (
+            <div
+              key={level}
+              className="flex items-center gap-5 border-2 border-goldleaf-500/40 bg-black/30 rounded-lg px-5 py-4"
+            >
+              <img
+                src={rankIconPath(level)}
+                alt=""
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-goldleaf-400 shrink-0"
+              />
+              <div className="w-48 shrink-0">
+                <div className="font-display text-goldleaf-100 font-bold text-2xl sm:text-3xl">
+                  {RANK_NAMES[level]}
+                </div>
               </div>
-              <div className="text-goldleaf-100 font-bold">{RANK_NAMES[level]}</div>
-              <div className="text-goldleaf-200 text-xs">{members.length}名</div>
-            </div>
-            <div className="flex-1 flex flex-wrap gap-2">
-              {members.map((m) => (
-                <span
-                  key={m.id}
-                  className="animate-rise inline-block rounded-md border border-goldleaf-500/40 bg-goldleaf-500/10 px-3 py-1 text-goldleaf-100"
-                >
-                  {m.display_name}
+              {/* 人数バー */}
+              <div className="flex-1 h-10 sm:h-12 bg-black/40 rounded overflow-hidden border border-goldleaf-500/30">
+                <div
+                  className="h-full bg-gradient-to-r from-goldleaf-600 to-goldleaf-300"
+                  style={{ width: `${pct}%`, transition: "width 0.9s ease-out" }}
+                />
+              </div>
+              <div className="w-28 sm:w-36 text-right shrink-0">
+                <span className="font-display text-goldleaf-200 text-4xl sm:text-6xl tabular-nums">
+                  {count}
                 </span>
-              ))}
+                <span className="text-goldleaf-300 text-xl sm:text-2xl ml-1">名</span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
+      </div>
+      <div className="text-center text-goldleaf-300 text-lg mt-4">
+        参加者 {participants.length} 名
       </div>
     </div>
   );
