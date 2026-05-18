@@ -1,8 +1,8 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Answer, GameState, Participant, PublicQuestion } from "@/types/game";
 import { RANK_LATIN, RANK_NAMES, RANK_TAGLINES, RANK_THEMES, rankIconPath } from "@/lib/ranks";
@@ -99,11 +99,56 @@ export default function PlayPage() {
         setQuestion(null);
         return;
       }
-      const res = await fetch("/api/game/current-question", { cache: "no-store" });
-      const data = await res.json();
-      setQuestion(data.question ?? null);
+      try {
+        const res = await fetch("/api/game/current-question", {
+          cache: "no-store",
+        });
+        const data = await res.json();
+        setQuestion(data.question ?? null);
+      } catch {
+        /* 一時的な失敗は次の resync で取り直す */
+      }
     })();
   }, [state?.current_question_id, state?.phase]);
+
+  // 取りこぼし対策：可視化/フォーカス/オンライン復帰時 & 定期的に
+  // gameState を直接読み直して強制同期する。
+  // （バックグラウンド化でFirestoreのソケットが切れても確実に追いつく）
+  const resync = useCallback(async () => {
+    try {
+      const snap = await getDoc(doc(db(), "gameState", "current"));
+      if (snap.exists()) {
+        setState(snap.data() as GameState);
+      }
+      const res = await fetch("/api/game/current-question", {
+        cache: "no-store",
+      });
+      const data = await res.json();
+      setQuestion(data.question ?? null);
+    } catch {
+      /* 次の機会に再試行 */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!pid) return;
+    const onVisible = () => {
+      if (document.visibilityState === "visible") resync();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", resync);
+    window.addEventListener("online", resync);
+    // 保険のポーリング（表示中のみ）。realtime が生きていれば実質無害。
+    const iv = setInterval(() => {
+      if (document.visibilityState === "visible") resync();
+    }, 7000);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", resync);
+      window.removeEventListener("online", resync);
+      clearInterval(iv);
+    };
+  }, [pid, resync]);
 
   const theme = useMemo(() => RANK_THEMES[me?.rank_level ?? 3], [me?.rank_level]);
 
