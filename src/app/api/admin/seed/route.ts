@@ -61,7 +61,7 @@ const WEDDING_QUESTIONS = [
     is_active: true,
     title: "高級なネックレスはどちら？",
     description:
-      "新郎から新婦への誕生日プレゼント。本物はどちら？もう片方はプチプラです。",
+      "片方は高級ブランド品、もう片方はプチプラのリーズナブルなお値段！ 本物の輝きはどちら？",
     option_a_label: "Ａ",
     option_b_label: "Ｂ",
     correct_option: "A",
