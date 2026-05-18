@@ -59,7 +59,7 @@ const WEDDING_QUESTIONS = [
   {
     order_index: 4,
     is_active: true,
-    title: "新郎が誕生日にあげたネックレスはどちら？",
+    title: "高級なネックレスはどちら？",
     description:
       "新郎から新婦への誕生日プレゼント。本物はどちら？もう片方はプチプラです。",
     option_a_label: "Ａ",
