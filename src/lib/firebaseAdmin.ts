@@ -76,5 +76,7 @@ export async function getGameState() {
     await ref.set(init);
     snap = await ref.get();
   }
-  return { ref, snap, data: snap.data() as Record<string, unknown> };
+  // data() は DocumentData（フィールドは any）。既存の利用箇所と型互換を保つため
+  // unknown へキャストしない。
+  return { ref, snap, data: snap.data() };
 }
