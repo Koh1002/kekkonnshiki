@@ -57,3 +57,24 @@ export async function ensureGameState() {
   }
   return ref;
 }
+
+// ホットパス用：ref と直近スナップショットを1回の読み取りで返す。
+// （ensureGameState + 別途 get() の2回読みを1回に削減）
+export async function getGameState() {
+  const db = adminDb();
+  const ref = db.collection("gameState").doc("current");
+  let snap = await ref.get();
+  if (!snap.exists) {
+    const init = {
+      phase: "LOBBY" as const,
+      current_question_id: null,
+      revealed_correct_option: null,
+      revealed_commentary: null,
+      question_started_at: null,
+      updated_at: new Date().toISOString(),
+    };
+    await ref.set(init);
+    snap = await ref.get();
+  }
+  return { ref, snap, data: snap.data() as Record<string, unknown> };
+}

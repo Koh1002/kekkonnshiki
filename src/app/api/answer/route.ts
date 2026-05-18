@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { adminDb, ensureGameState } from "@/lib/firebaseAdmin";
+import { adminDb, getGameState } from "@/lib/firebaseAdmin";
 import type { Option } from "@/types/game";
 
 export const runtime = "nodejs";
@@ -21,9 +21,8 @@ export async function POST(req: Request) {
   }
 
   const db = adminDb();
-  const stateRef = await ensureGameState();
-  const stateSnap = await stateRef.get();
-  const state = stateSnap.data();
+  // ホットパス：gameState を1回だけ読む（50人同時送信対策）
+  const { data: state } = await getGameState();
   if (!state) {
     return NextResponse.json({ error: "ゲーム状態が取得できませんでした" }, { status: 500 });
   }

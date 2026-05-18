@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
-import { adminDb, ensureGameState } from "@/lib/firebaseAdmin";
+import { adminDb, getGameState } from "@/lib/firebaseAdmin";
 import type { PublicQuestion } from "@/types/game";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // 現在の出題データを返す。REVEAL / RANK_UPDATE / FINAL では正解・解説も含める。
+// 全参加者がフェーズ変化のたびに呼ぶホットパス。gameState は1回だけ読む。
 export async function GET() {
   const db = adminDb();
-  const stateRef = await ensureGameState();
-  const stateSnap = await stateRef.get();
-  const state = stateSnap.data();
+  const { data: state } = await getGameState();
   if (!state) {
     return NextResponse.json({ error: "ゲーム状態取得失敗" }, { status: 500 });
   }
