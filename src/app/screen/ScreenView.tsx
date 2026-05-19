@@ -149,7 +149,7 @@ function LobbyView({
         </p>
       </div>
 
-      {/* 下段：左にQR、右に参加者一覧（増えていく） */}
+      {/* 下段：左にQR、右上にルール説明・右下に最新10名 */}
       <div className="flex-1 grid grid-cols-[auto_1fr] gap-8 min-h-0">
         <div className="flex flex-col items-center justify-center gap-3">
           <div className="bg-white p-5 rounded-lg shadow-2xl flex items-center justify-center border-4 border-goldleaf-400">
@@ -169,26 +169,64 @@ function LobbyView({
           </div>
         </div>
 
-        <div className="flex flex-col min-h-0">
-          <h2 className="font-display text-goldleaf-300 tracking-widest mb-3 text-center text-2xl">
-            本日の参列者（{participants.length}名）
-          </h2>
-          <div className="flex-1 overflow-y-auto">
-            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2 content-start">
-              {participants.map((p) => (
-                <div
-                  key={p.id}
-                  className="animate-rise rounded-md border border-goldleaf-500/30 bg-black/40 py-2 px-3 text-goldleaf-50 text-center truncate text-lg"
-                >
-                  {p.display_name}
-                </div>
-              ))}
-              {participants.length === 0 && (
-                <div className="col-span-full text-goldleaf-200 text-center text-lg py-8">
-                  最初の参加者をお待ちしています…
-                </div>
-              )}
-            </div>
+        <div className="flex flex-col min-h-0 gap-4">
+          {/* ルール説明（参加者画面と同じ内容） */}
+          <div className="flex-1 min-h-0 border-2 border-goldleaf-500/40 bg-velvet-900/60 rounded-lg p-5 overflow-y-auto">
+            <h2 className="font-display text-goldleaf-300 tracking-widest text-center text-2xl mb-3">
+              — あ そ び か た —
+            </h2>
+            <ol className="space-y-2 text-goldleaf-50 text-lg leading-relaxed">
+              <li>
+                <span className="text-goldleaf-300 font-black mr-2">①</span>
+                司会が問題を読み上げます。スマホに出る <strong className="text-goldleaf-200">Ａ・Ｂ</strong> のお好きな方を一度だけタップ。
+              </li>
+              <li>
+                <span className="text-goldleaf-300 font-black mr-2">②</span>
+                各問に <strong className="text-goldleaf-200">制限時間</strong> あり。司会の合図でカウント開始（未回答は不正解扱い）。
+              </li>
+              <li>
+                <span className="text-goldleaf-300 font-black mr-2">③</span>
+                全員 <strong className="text-goldleaf-200">最高位「一流」</strong> からスタート。正解は変動なし、<strong className="text-goldleaf-200">不正解だと1つ格が落ちます</strong>（下がる一方）。
+              </li>
+              <li>
+                <span className="text-goldleaf-300 font-black mr-2">④</span>
+                格は5段階（一流 &gt; 二流 &gt; 普通の人 &gt; 三流 &gt; ご愛敬枠）。最後まで <strong className="text-goldleaf-200">「一流」を死守</strong>！
+              </li>
+              <li>
+                <span className="text-goldleaf-300 font-black mr-2">⑤</span>
+                進行は司会者が司ります。お手元で「次へ」は不要、そのままお待ちを。
+              </li>
+              <li>
+                <span className="text-rose-300 font-black mr-2">⑥</span>
+                <strong className="text-rose-200">AIにこっそり尋ねるのは品格を損ねる所業</strong>。ご自身の眼と感性のみで！
+              </li>
+            </ol>
+          </div>
+
+          {/* 右下：最新10名だけ */}
+          <div className="shrink-0">
+            <h3 className="font-display text-goldleaf-300 tracking-widest text-center text-base mb-2">
+              参加者 {participants.length}名（最新10名）
+            </h3>
+            {participants.length === 0 ? (
+              <div className="text-goldleaf-200 text-center text-base py-3">
+                最初の参加者をお待ちしています…
+              </div>
+            ) : (
+              <div className="flex flex-wrap justify-center gap-2">
+                {participants
+                  .slice(-10)
+                  .reverse()
+                  .map((p) => (
+                    <span
+                      key={p.id}
+                      className="animate-rise rounded-md border border-goldleaf-500/30 bg-black/40 py-1.5 px-3 text-goldleaf-50 truncate text-base max-w-[10rem]"
+                    >
+                      {p.display_name}
+                    </span>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
