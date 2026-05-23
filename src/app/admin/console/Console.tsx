@@ -30,6 +30,7 @@ export function AdminConsole() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showEmergency, setShowEmergency] = useState(false);
+  const [participantSort, setParticipantSort] = useState<"rank" | "name">("rank");
 
   async function loadQuestions() {
     const res = await fetch("/api/admin/question", { cache: "no-store" });
@@ -96,6 +97,22 @@ export function AdminConsole() {
     if (!currentQuestion) return activeQuestions.length > 0;
     return activeQuestions.some((q) => q.order_index > currentQuestion.order_index);
   }, [activeQuestions, currentQuestion]);
+
+  // 司会者が当日確認しやすいよう、参加者一覧を並び替え可能に
+  const sortedParticipants = useMemo(() => {
+    const arr = [...participants];
+    if (participantSort === "name") {
+      arr.sort((a, b) => a.display_name.localeCompare(b.display_name, "ja"));
+    } else {
+      // 格降順 → 同格は正解数降順 → さらに名前昇順
+      arr.sort((a, b) => {
+        if (b.rank_level !== a.rank_level) return b.rank_level - a.rank_level;
+        if (b.correct_count !== a.correct_count) return b.correct_count - a.correct_count;
+        return a.display_name.localeCompare(b.display_name, "ja");
+      });
+    }
+    return arr;
+  }, [participants, participantSort]);
 
   async function act(action: string, extra?: Record<string, unknown>) {
     if (busy) return;
@@ -361,11 +378,34 @@ export function AdminConsole() {
 
         {/* 参加者一覧 */}
         <section className="rounded-lg border border-goldleaf-500/40 bg-black/30 p-5">
-          <h2 className="font-display text-goldleaf-200 text-lg mb-3">
-            参加者（{participants.length}名）
-          </h2>
+          <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
+            <h2 className="font-display text-goldleaf-200 text-lg">
+              参加者（{participants.length}名）
+            </h2>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-goldleaf-300">並び替え:</span>
+              {(
+                [
+                  ["rank", "格順"],
+                  ["name", "名前順"],
+                ] as const
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => setParticipantSort(key)}
+                  className={`px-3 py-1 rounded border ${
+                    participantSort === key
+                      ? "border-goldleaf-300 bg-goldleaf-500/20 text-goldleaf-100"
+                      : "border-goldleaf-500/40 text-goldleaf-200 hover:bg-goldleaf-500/10"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {participants.map((p) => {
+            {sortedParticipants.map((p) => {
               const ans = currentAnswers.find((a) => a.participant_id === p.id);
               return (
                 <div
