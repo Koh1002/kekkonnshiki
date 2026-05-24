@@ -430,7 +430,7 @@ function AnswerStage({
         </div>
       )}
       {showReveal && commentary && (
-        <p className="mx-auto mt-4 max-w-4xl text-goldleaf-50 text-xl lg:text-2xl leading-relaxed bg-velvet-900/80 border-2 border-goldleaf-400 rounded-lg p-5 text-center">
+        <p className="mx-auto mt-3 max-w-4xl text-goldleaf-50 text-base sm:text-lg lg:text-xl leading-snug bg-velvet-900/80 border-2 border-goldleaf-400 rounded-lg px-4 py-3 text-center max-h-[28vh] overflow-y-auto">
           {commentary}
         </p>
       )}

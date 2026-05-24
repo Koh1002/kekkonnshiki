@@ -243,6 +243,23 @@ export default function PlayPage() {
           themeSoft={theme.soft}
           themeFrame={theme.frame}
         />
+
+        {/* 同期がずれた時の保険ボタン。reload してもlocalStorageの
+            participant_id は残るためスコア・格は保持される。 */}
+        <div className="pt-4 text-center">
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 rounded-md border-2 border-goldleaf-500/60 bg-velvet-900/60 text-goldleaf-100 text-sm font-bold hover:bg-velvet-900/80"
+          >
+            🔄 画面を再読み込み
+          </button>
+          <p className={`mt-2 text-xs ${theme.accent}`}>
+            画面が進んでいない時はこちらを押してください
+            <br />
+            （データは消えないのでご安心を）
+          </p>
+        </div>
       </div>
     </main>
   );
